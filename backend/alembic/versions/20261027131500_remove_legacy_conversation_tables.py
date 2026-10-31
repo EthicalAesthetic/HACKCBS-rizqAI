@@ -5,6 +5,7 @@ Revises: 20261027130000
 """
 
 from alembic import op
+import sqlalchemy as sa
 
 
 revision = "20261027131500"
@@ -14,9 +15,14 @@ depends_on = None
 
 
 def upgrade() -> None:
-    op.drop_table("user_profiles")
-    op.drop_table("messages")
-    op.drop_table("conversations")
+    bind = op.get_bind()
+    inspector = sa.inspect(bind)
+    existing_tables = inspector.get_table_names()
+
+    # Drop only if the legacy tables still exist (idempotent for already-cleaned DBs)
+    for table in ("user_profiles", "messages", "conversations"):
+        if table in existing_tables:
+            op.drop_table(table)
 
 
 def downgrade() -> None:

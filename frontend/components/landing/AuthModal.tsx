@@ -1,10 +1,12 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/authContext";
 import { initiateOAuthFlow } from "@/lib/api";
 
 export default function AuthModal() {
+  const router = useRouter();
   const {
     isAuthModalOpen,
     closeAuthModal,
@@ -75,15 +77,15 @@ export default function AuthModal() {
     try {
       if (authModalMode === "login") {
         await login(email, password);
-        // modal closes automatically via context
+        // modal closes via context, then redirect to dashboard
+        router.push("/app");
       } else {
         const msg = await signup(email, password);
         if (msg) {
-          // Backend asked for email verification — switch to OTP step
+          // Backend asked for OTP verification — switch to OTP step
           setInfo(msg);
           setStep("otp");
         }
-        // If no msg, session was created immediately and modal closes via context
       }
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Something went wrong.");
@@ -98,7 +100,8 @@ export default function AuthModal() {
     setLoading(true);
     try {
       await signupWithOtp(email, password, otp, name || email.split("@")[0]);
-      // modal closes automatically via context
+      // modal closes via context, then redirect to dashboard
+      router.push("/app");
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Invalid OTP. Please try again.");
     } finally {
