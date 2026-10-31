@@ -1,0 +1,52 @@
+from langgraph.graph import START, END, StateGraph
+
+
+from graph.state import GraphState
+from agents.guardrail_agent import guardrail_agent
+from agents.planner_agent import planner_agent
+from agents.research_agent import research_agent
+from agents.risk_agent import risk_agent
+from agents.debate_agent import debate_agent
+from agents.thesis_agent import thesis_agent
+from agents.general_finance_agent import general_finance_agent
+from agents.node_routing import route_next_agent, route_after_guardrail
+
+
+graph_builder = StateGraph(GraphState)
+
+
+graph_builder.add_node("guardrail_agent", guardrail_agent)
+graph_builder.add_node("planner_agent", planner_agent)
+graph_builder.add_node("research_agent", research_agent)
+graph_builder.add_node("risk_agent", risk_agent)
+graph_builder.add_node("debate_agent", debate_agent)
+graph_builder.add_node("thesis_agent", thesis_agent)
+graph_builder.add_node("general_finance_agent", general_finance_agent)
+
+
+graph_builder.add_edge(START, "guardrail_agent")
+graph_builder.add_conditional_edges("guardrail_agent", route_after_guardrail)
+graph_builder.add_edge("general_finance_agent", END)
+
+
+routing_map = {
+    "research_agent": "research_agent",
+    "risk_agent": "risk_agent",
+    "debate_agent": "debate_agent",
+    "thesis_agent": "thesis_agent",
+    END: END
+}
+
+
+for agent in [
+    "planner_agent",
+    "research_agent",
+    "risk_agent",
+    "debate_agent",
+    "thesis_agent",
+]:
+    graph_builder.add_conditional_edges(
+        agent,
+        route_next_agent,    
+        routing_map,
+    )
