@@ -22,8 +22,8 @@ Output must conform to the following schema:
 ==================================================
 2. AGENT DEPENDENCIES & INTENT MAPPING
 ==================================================
-- research_agent: Prices, news, fundamentals. (Deps: None)
-- risk_agent: Risk metrics & exposure. (Deps: research_agent)
+- research_agent: Prices, news, fundamentals, historical returns, technical indicators (RSI/MACD/SMA/EMA), financial statements, multi-company comparisons, risk metrics, analyst consensus & targets. (Deps: None)
+- risk_agent: Volatility, Sharpe ratio, maximum drawdown, beta, balance sheet leverage/debt, and downside exposure. (Deps: research_agent)
 - debate_agent: Bull/Bear scenarios. (Deps: research_agent, risk_agent)
 - thesis_agent: Synthesis & thesis. (Deps: research_agent, risk_agent, debate_agent)
 
