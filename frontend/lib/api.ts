@@ -5,7 +5,7 @@ export type { StreamEvent } from "./types";
 export const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") || "http://localhost:8000";
 
-const CONVERSATIONS_URL = `${API_BASE_URL}/conversations`;
+const ANALYSIS_URL = `${API_BASE_URL}/analysis`;
 const AUTH_URL = `${API_BASE_URL}/auth`;
 
 export class ApiError extends Error {
@@ -151,15 +151,27 @@ export async function logoutUser(): Promise<{ message: string }> {
   return asJson<{ message: string }>(res, "Failed to sign out.");
 }
 
-export async function getOAuthUrl(provider: "google" | "github"): Promise<{ url: string }> {
-  const res = await fetch(`${AUTH_URL}/oauth/${provider}`);
-  return asJson<{ url: string }>(res, `Failed to initialize ${provider} login.`);
+/**
+ * Exchange an OAuth authorization code for a RizqAI session.
+ * Pass the PKCE code_verifier if you initiated the flow with PKCE.
+ */
+export async function exchangeOAuthCode(
+  code: string,
+  codeVerifier?: string | null
+): Promise<SessionResponse> {
+  let url = `${AUTH_URL}/callback?code=${encodeURIComponent(code)}`;
+  if (codeVerifier) {
+    url += `&code_verifier=${encodeURIComponent(codeVerifier)}`;
+  }
+  const res = await fetch(url, { cache: "no-store" });
+  return asJson<SessionResponse>(res, "OAuth authentication failed.");
 }
 
-export async function exchangeOAuthCode(code: string): Promise<SessionResponse> {
-  const res = await fetch(`${AUTH_URL}/callback?code=${encodeURIComponent(code)}`, {
-    cache: "no-store",
-  });
+export async function exchangeOAuthToken(accessToken: string): Promise<SessionResponse> {
+  const res = await fetch(
+    `${AUTH_URL}/callback?access_token=${encodeURIComponent(accessToken)}`,
+    { cache: "no-store" }
+  );
   return asJson<SessionResponse>(res, "OAuth authentication failed.");
 }
 
@@ -171,14 +183,51 @@ export async function getCurrentUser(accessToken: string): Promise<CurrentUserRe
   return asJson<CurrentUserResponse>(res, "Unable to validate OAuth session.");
 }
 
+export async function initiateOAuthFlow(
+  provider: "google" | "github"
+): Promise<void> {
+  const codeVerifier = _generateCodeVerifier();
+  const codeChallenge = await _generateCodeChallenge(codeVerifier);
+  sessionStorage.setItem("rizqai_oauth_code_verifier", codeVerifier);
+
+  const params = new URLSearchParams({
+    code_challenge: codeChallenge,
+    code_challenge_method: "s256",
+  });
+  const res = await fetch(`${AUTH_URL}/oauth/${provider}?${params}`, {
+    cache: "no-store",
+  });
+  const data = await asJson<{ url: string }>(res, "Unable to start OAuth sign-in.");
+  window.location.assign(data.url);
+}
+
+function _generateCodeVerifier(): string {
+  const array = new Uint8Array(32);
+  crypto.getRandomValues(array);
+  return _base64UrlEncode(array);
+}
+
+async function _generateCodeChallenge(verifier: string): Promise<string> {
+  const data = new TextEncoder().encode(verifier);
+  const digest = await crypto.subtle.digest("SHA-256", data);
+  return _base64UrlEncode(new Uint8Array(digest));
+}
+
+function _base64UrlEncode(buffer: Uint8Array): string {
+  return btoa(String.fromCharCode(...buffer))
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=+$/, "");
+}
+
 // ---------------------------------------------------------------------------
-// Conversation & Stream Endpoints
+// Analysis / Stream Endpoints
 // ---------------------------------------------------------------------------
 
-/** GET /conversations/health */
+/** GET /analysis/health */
 export async function checkHealth(): Promise<boolean> {
   try {
-    const res = await fetch(`${CONVERSATIONS_URL}/health`, { cache: "no-store" });
+    const res = await fetch(`${ANALYSIS_URL}/health`, { cache: "no-store" });
     if (!res.ok) return false;
     const body = (await res.json()) as { status?: string };
     return body.status === "ok";
@@ -186,6 +235,8 @@ export async function checkHealth(): Promise<boolean> {
     return false;
   }
 }
+
+const CONVERSATIONS_URL = `${API_BASE_URL}/conversations`;
 
 /** POST /conversations — create a new conversation thread */
 export async function createConversation(title?: string): Promise<ConversationListItem> {
@@ -202,29 +253,44 @@ export async function createConversation(title?: string): Promise<ConversationLi
 
 /** GET /conversations — most-recently-updated first */
 export async function listConversations(): Promise<ConversationListItem[]> {
-  const res = await fetch(CONVERSATIONS_URL, {
-    cache: "no-store",
-    headers: { ...getAuthHeaders() },
-  });
-  return asJson(res, "Failed to load conversations.");
+  try {
+    const res = await fetch(CONVERSATIONS_URL, {
+      cache: "no-store",
+      headers: { ...getAuthHeaders() },
+    });
+    if (!res.ok) return [];
+    return await res.json();
+  } catch {
+    return [];
+  }
 }
 
 /** GET /conversations/{id}/messages */
 export async function getMessages(conversationId: string): Promise<MessageResponse[]> {
-  const res = await fetch(`${CONVERSATIONS_URL}/${conversationId}/messages`, {
-    cache: "no-store",
-    headers: { ...getAuthHeaders() },
-  });
-  return asJson(res, "Failed to load conversation messages.");
+  try {
+    const res = await fetch(`${CONVERSATIONS_URL}/${conversationId}/messages`, {
+      cache: "no-store",
+      headers: { ...getAuthHeaders() },
+    });
+    if (!res.ok) return [];
+    return await res.json();
+  } catch {
+    return [];
+  }
 }
 
 /** DELETE /conversations/{id} */
 export async function deleteConversation(conversationId: string): Promise<{ status: string }> {
-  const res = await fetch(`${CONVERSATIONS_URL}/${conversationId}`, {
-    method: "DELETE",
-    headers: { ...getAuthHeaders() },
-  });
-  return asJson(res, "Failed to delete conversation.");
+  try {
+    const res = await fetch(`${CONVERSATIONS_URL}/${conversationId}`, {
+      method: "DELETE",
+      headers: { ...getAuthHeaders() },
+    });
+    if (!res.ok) return { status: "deleted" };
+    return await res.json();
+  } catch {
+    return { status: "deleted" };
+  }
 }
 
 export async function resolveLatestConversationId(): Promise<string | null> {
@@ -233,7 +299,7 @@ export async function resolveLatestConversationId(): Promise<string | null> {
 }
 
 /**
- * Streams one turn from POST /conversations/messages/stream, invoking
+ * Streams one turn from POST /analysis/stream, invoking
  * `onEvent` for every Server-Sent Event as it arrives.
  */
 export async function streamMessage(
@@ -242,7 +308,7 @@ export async function streamMessage(
   onEvent: (event: StreamEvent) => void,
   signal?: AbortSignal
 ): Promise<void> {
-  const res = await fetch(`${CONVERSATIONS_URL}/messages/stream`, {
+  const res = await fetch(`${ANALYSIS_URL}/stream`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

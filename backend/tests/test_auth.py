@@ -199,6 +199,7 @@ def test_oauth_and_password_recovery(client):
     google = test_client.get("/auth/oauth/google")
     github = test_client.get("/auth/oauth/github")
     callback = test_client.get("/auth/callback?code=one-time-code")
+    implicit_callback = test_client.get("/auth/callback?access_token=oauth-access-token")
     recovery = test_client.post(
         "/auth/password/recover", json={"email": "user@example.com"}
     )
@@ -206,6 +207,7 @@ def test_oauth_and_password_recovery(client):
     assert google.json()["provider"] == "google"
     assert github.json()["provider"] == "github"
     assert callback.status_code == 200
+    assert implicit_callback.status_code == 200
     assert callback.json()["email"] == "user@example.com"
     assert recovery.json()["message"].startswith("If an account exists")
     assert ("callback", {"auth_code": "one-time-code"}) in fake.calls
@@ -228,6 +230,77 @@ def test_oauth_url_does_not_require_server_side_pkce_storage(client, monkeypatch
 
     assert response.status_code == 200
     assert "code_challenge" not in response.json()["url"]
+
+
+def test_oauth_url_forwards_browser_pkce_challenge(client):
+    response = client[0].get(
+        "/auth/oauth/google",
+        params={
+            "code_challenge": "challenge",
+            "code_challenge_method": "s256",
+        },
+    )
+
+    assert response.status_code == 200
+    assert ("oauth", {
+        "provider": "google",
+        "options": {
+            "redirect_to": "http://localhost:3000/auth/callback",
+            "query_params": {
+                "code_challenge": "challenge",
+                "code_challenge_method": "s256",
+            },
+        },
+    }) in client[1].calls
+
+
+def test_oauth_callback_forwards_browser_pkce_verifier(client):
+    response = client[0].get(
+        "/auth/callback",
+        params={"code": "one-time-code", "code_verifier": "verifier"},
+    )
+
+    assert response.status_code == 200
+    assert ("callback", {
+        "auth_code": "one-time-code",
+        "code_verifier": "verifier",
+    }) in client[1].calls
+
+
+def test_supabase_client_uses_implicit_oauth_flow(monkeypatch):
+    captured = {}
+
+    def fake_create_client(url, key, options=None):
+        captured["options"] = options
+        return SimpleNamespace(auth=SimpleNamespace())
+
+    monkeypatch.setattr(auth, "create_client", fake_create_client)
+    monkeypatch.setattr(auth, "SUPABASE_URL", "https://example.supabase.co")
+    monkeypatch.setattr(auth, "SUPABASE_ANON_KEY", "anon")
+
+    auth.get_supabase_client()
+
+    assert captured["options"].flow_type == "implicit"
+
+
+def test_oauth_callback_accepts_supabase_user_response_for_implicit_token(client, monkeypatch):
+    class OAuthClient:
+        def __init__(self):
+            self.auth = self
+
+        def get_user(self, access_token):
+            assert access_token == "oauth-access-token"
+            return SimpleNamespace(
+                id="user-1",
+                email="user@example.com",
+                user_metadata={},
+            )
+
+    monkeypatch.setattr(auth_routes, "get_supabase_client", lambda: OAuthClient())
+    response = client[0].get("/auth/callback?access_token=oauth-access-token")
+
+    assert response.status_code == 200
+    assert response.json()["email"] == "user@example.com"
 
 
 def test_refresh_logout_and_password_update(client):

@@ -224,16 +224,23 @@ def logout(user: AuthUser = Depends(require_user), db: Session = Depends(get_db)
 
 
 @router.get("/oauth/{provider}", response_model=OAuthURLResponse)
-def oauth(provider: str):
+def oauth(
+    provider: str,
+    code_challenge: str | None = Query(default=None, min_length=1),
+    code_challenge_method: str | None = Query(default=None, min_length=1),
+):
     if provider not in {"google", "github"}:
         raise HTTPException(status_code=400, detail="Unsupported OAuth provider")
     require_supabase_config()
     try:
-        response = get_supabase_client().auth.sign_in_with_oauth(
-            {
-                "provider": provider,
-                "options": {"redirect_to": AUTH_REDIRECT_URL},
+        options: dict[str, Any] = {"redirect_to": AUTH_REDIRECT_URL}
+        if code_challenge:
+            options["query_params"] = {
+                "code_challenge": code_challenge,
+                "code_challenge_method": code_challenge_method or "s256",
             }
+        response = get_supabase_client().auth.sign_in_with_oauth(
+            {"provider": provider, "options": options}
         )
         url = getattr(response, "url", None)
         if not url:
@@ -247,14 +254,28 @@ def oauth(provider: str):
 
 
 @router.get("/callback", response_model=SessionResponse)
-def oauth_callback(code: str = Query(min_length=1), db: Session = Depends(get_db)):
+def oauth_callback(
+    code: str | None = Query(default=None, min_length=1),
+    access_token: str | None = Query(default=None, min_length=1),
+    code_verifier: str | None = Query(default=None, min_length=1),
+    db: Session = Depends(get_db),
+):
     require_supabase_config()
+    if not code and not access_token:
+        raise HTTPException(status_code=400, detail="OAuth callback is missing a code or access token")
+
     try:
-        response = get_supabase_client().auth.exchange_code_for_session(
-            {"auth_code": code}
-        )
-        provider_session = getattr(response, "session", None)
-        provider_user = getattr(provider_session, "user", None)
+        supabase_auth = get_supabase_client().auth
+        if access_token:
+            user_response = supabase_auth.get_user(access_token)
+            provider_user = getattr(user_response, "user", user_response)
+        else:
+            exchange_params: dict[str, str] = {"auth_code": code}
+            if code_verifier:
+                exchange_params["code_verifier"] = code_verifier
+            response = supabase_auth.exchange_code_for_session(exchange_params)
+            provider_session = getattr(response, "session", None)
+            provider_user = getattr(provider_session, "user", None)
         email = getattr(provider_user, "email", None)
         if not email:
             raise HTTPException(status_code=502, detail="OAuth provider returned no email")
