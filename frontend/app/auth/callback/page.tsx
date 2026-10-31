@@ -3,7 +3,7 @@
 import { useEffect, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense } from "react";
-import { exchangeOAuthCode } from "@/lib/api";
+import { exchangeOAuthCode, exchangeOAuthToken } from "@/lib/api";
 import { useAuth } from "@/lib/authContext";
 
 function AuthCallbackContent() {
@@ -20,33 +20,38 @@ function AuthCallbackContent() {
     const code = params.get("code");
     const error = params.get("error");
     const errorDescription = params.get("error_description");
+    const hashParams = new URLSearchParams(
+      typeof window !== "undefined" ? window.location.hash.slice(1) : ""
+    );
+    const accessToken = hashParams.get("access_token");
 
     // Supabase sends ?error=... when the user denies access
     if (error) {
       console.error("[auth/callback] OAuth error:", error, errorDescription);
-      router.replace("/?auth_error=1");
+      router.replace(
+        `/?auth_error=${encodeURIComponent(errorDescription || error)}`
+      );
       return;
     }
 
-    if (!code) {
+    if (!code && !accessToken) {
       router.replace("/");
       return;
     }
 
-    // Retrieve the PKCE code_verifier that was stored in sessionStorage
-    // when we initiated the OAuth flow via initiateOAuthFlow().
     const codeVerifier =
       typeof window !== "undefined"
         ? sessionStorage.getItem("rizqai_oauth_code_verifier")
         : null;
-
-    // Clean up stored PKCE state
     if (typeof window !== "undefined") {
       sessionStorage.removeItem("rizqai_oauth_code_verifier");
-      sessionStorage.removeItem("rizqai_oauth_provider");
     }
 
-    exchangeOAuthCode(code, codeVerifier)
+    const exchange = code
+      ? exchangeOAuthCode(code, codeVerifier)
+      : exchangeOAuthToken(accessToken as string);
+
+    exchange
       .then((data) => {
         if (data.access_token) {
           establishSession({
@@ -61,7 +66,8 @@ function AuthCallbackContent() {
       })
       .catch((err) => {
         console.error("[auth/callback] token exchange failed:", err);
-        router.replace("/?auth_error=1");
+        const message = err instanceof Error ? err.message : "OAuth authentication failed.";
+        router.replace(`/?auth_error=${encodeURIComponent(message)}`);
       });
   }, [params, router, establishSession]);
 
