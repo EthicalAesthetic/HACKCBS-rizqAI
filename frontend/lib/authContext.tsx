@@ -45,38 +45,9 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  // Lazy state initializers read stored session without triggering cascading renders in effect
-  const [user, setUser] = useState<UserSession | null>(() => {
-    if (typeof window === "undefined") return null;
-    try {
-      const storedToken = localStorage.getItem("rizqai_token");
-      const storedUserId = localStorage.getItem("rizqai_user_id");
-      const storedEmail = localStorage.getItem("rizqai_user_email");
-      const storedName = localStorage.getItem("rizqai_user_name");
-      if (storedToken && storedUserId) {
-        return {
-          userId: storedUserId,
-          email: storedEmail,
-          name: storedName || storedEmail?.split("@")[0] || "Analyst",
-          token: storedToken,
-        };
-      }
-    } catch {
-      // Ignore localStorage read errors
-    }
-    return null;
-  });
-
-  const [token, setToken] = useState<string | null>(() => {
-    if (typeof window === "undefined") return null;
-    try {
-      return localStorage.getItem("rizqai_token");
-    } catch {
-      return null;
-    }
-  });
-
-  const [isLoading] = useState(false);
+  const [user, setUser] = useState<UserSession | null>(null);
+  const [token, setToken] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authModalMode, setAuthModalMode] = useState<"login" | "signup">("login");
 
@@ -91,11 +62,32 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         .then((res) => {
           if (!active) return;
           establishSession(res);
+          setIsLoading(false);
         })
-        .catch(() => {});
+        .catch(() => {
+          if (active) setIsLoading(false);
+        });
       return () => {
         active = false;
       };
+    }
+
+    // Immediately restore cached user credentials from localStorage on client mount
+    try {
+      const storedUserId = localStorage.getItem("rizqai_user_id");
+      const storedEmail = localStorage.getItem("rizqai_user_email");
+      const storedName = localStorage.getItem("rizqai_user_name");
+      if (storedUserId) {
+        setUser({
+          userId: storedUserId,
+          email: storedEmail,
+          name: storedName || storedEmail?.split("@")[0] || "Analyst",
+          token: storedToken,
+        });
+        setToken(storedToken);
+      }
+    } catch {
+      // Ignore localStorage read errors
     }
 
     getCurrentUser(storedToken)
@@ -107,6 +99,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           name: me.name,
           token: storedToken,
         });
+        setIsLoading(false);
       })
       .catch(async () => {
         // Access token might be expired, attempt refresh
@@ -129,6 +122,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             if (refreshed.email) {
               localStorage.setItem("rizqai_user_email", refreshed.email);
             }
+            setIsLoading(false);
             return;
           } catch {
             // Refresh token also invalid
@@ -138,6 +132,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         clearStoredTokens();
         setUser(null);
         setToken(null);
+        setIsLoading(false);
       });
 
     return () => {

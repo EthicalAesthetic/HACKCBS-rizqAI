@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/authContext";
@@ -7,6 +8,11 @@ import { useAuth } from "@/lib/authContext";
 export default function Navbar() {
   const router = useRouter();
   const { user, openAuthModal, logout } = useAuth();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const handleLaunchApp = () => {
     if (user) {
@@ -49,7 +55,7 @@ export default function Navbar() {
 
         {/* Right CTA / Auth controls */}
         <div className="flex items-center gap-3">
-          {user ? (
+          {mounted && user ? (
             <div className="flex items-center gap-2.5">
               <span className="hidden text-xs text-text-muted sm:inline-block max-w-[130px] truncate">
                 {user.name || "Analyst"}

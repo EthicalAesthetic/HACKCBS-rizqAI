@@ -273,7 +273,13 @@ export default function WorkspacePage() {
     executeQuery(query);
   };
 
-  if (authLoading) {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted || authLoading) {
     return (
       <div className="flex h-screen items-center justify-center bg-[#060b13] text-[#70849c]">
         <div className="flex items-center gap-3">
