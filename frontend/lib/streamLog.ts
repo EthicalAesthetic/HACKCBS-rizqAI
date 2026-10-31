@@ -48,7 +48,7 @@ export function summarizeEvent(event: StreamEvent): { summary: string; success: 
     case "thesis_agent":
       if (data.thesis) {
         return {
-          summary: `${data.thesis.recommendation} · ${data.thesis.confidence}/10 confidence`,
+          summary: `${data.thesis.recommendation} · Consensus thesis issued`,
           success: true,
         };
       }

@@ -22,7 +22,7 @@ export default function WorkspaceRightPanel({
   isOpenMobile,
   onCloseMobile,
 }: WorkspaceRightPanelProps) {
-  const [activeTab, setActiveTab] = useState<"News" | "Financials" | "Analysis">("Financials");
+  const [activeTab, setActiveTab] = useState<"Financials" | "Technicals" | "News" | "Debate">("Financials");
 
   const planCompany = activeTurn?.plan?.companies?.[0];
   const researchData = activeTurn?.research;
@@ -30,7 +30,7 @@ export default function WorkspaceRightPanel({
 
   let companyName = planCompany || (activeTurn?.query ? "Target Equity" : "Market Overview");
   let exchangePrice = "—";
-  let description = "Select or submit an analysis query to view verified financial data.";
+  let description = "Submit an analysis query to stream live financial data and agent consensus.";
   let marketCap = "—";
   let peRatio = "—";
   let forwardPe = "—";
@@ -41,6 +41,16 @@ export default function WorkspaceRightPanel({
   let eps = "—";
   let sector = "—";
   let industry = "—";
+
+  // New tool metrics
+  let rsiValue = "—";
+  let macdBias = "—";
+  let volatilityPct = "—";
+  let maxDrawdownPct = "—";
+  let sharpeRatio = "—";
+  let analystTarget = "—";
+  let analystConsensus = "—";
+
   const newsArticles: NewsArticle[] = [];
 
   for (const step of toolOutputs) {
@@ -70,6 +80,25 @@ export default function WorkspaceRightPanel({
       if (quote.year_high && fiftyTwoHigh === "—") fiftyTwoHigh = `$${quote.year_high}`;
       if (quote.year_low && fiftyTwoLow === "—") fiftyTwoLow = `$${quote.year_low}`;
     }
+    if (step.tool === "get_technical_indicators" && typeof step.output === "object" && step.output !== null) {
+      const tech = step.output as Record<string, unknown>;
+      const rsiObj = tech.rsi as Record<string, unknown> | undefined;
+      const macdObj = tech.macd as Record<string, unknown> | undefined;
+      if (typeof rsiObj?.value === "number") rsiValue = `${rsiObj.value.toFixed(1)} (${rsiObj.status || ""})`;
+      if (typeof macdObj?.status === "string") macdBias = macdObj.status;
+    }
+    if (step.tool === "get_risk_analysis" && typeof step.output === "object" && step.output !== null) {
+      const rk = step.output as Record<string, unknown>;
+      if (typeof rk.annualized_volatility_pct === "number") volatilityPct = `${rk.annualized_volatility_pct}%`;
+      if (typeof rk.max_drawdown_1y_pct === "number") maxDrawdownPct = `${rk.max_drawdown_1y_pct}%`;
+      if (typeof rk.sharpe_ratio === "number") sharpeRatio = String(rk.sharpe_ratio);
+      if (typeof rk.beta === "number" && beta === "—") beta = String(rk.beta);
+    }
+    if (step.tool === "get_analyst_recommendations" && typeof step.output === "object" && step.output !== null) {
+      const ar = step.output as Record<string, unknown>;
+      if (ar.consensus_rating) analystConsensus = String(ar.consensus_rating).toUpperCase();
+      if (ar.target_mean_price) analystTarget = `$${ar.target_mean_price} (${ar.upside_potential_pct || 0}% upside)`;
+    }
     if (step.tool === "get_company_news" && typeof step.output === "object" && step.output !== null) {
       const newsOutput = step.output as Record<string, unknown>;
       if (Array.isArray(newsOutput.articles)) {
@@ -85,37 +114,37 @@ export default function WorkspaceRightPanel({
   const symbolIcon = (planCompany || companyName || "•").slice(0, 1).toUpperCase();
 
   const content = (
-    <div className="flex h-full flex-col justify-between p-4 bg-[#070c14] border-l border-[#152030] text-text overflow-y-auto select-none">
-      <div className="space-y-4">
+    <div className="flex h-full flex-col justify-between p-3.5 bg-[#060b13] border-l border-[#141f2e] text-text overflow-y-auto select-none">
+      <div className="space-y-3.5">
         {/* Top Header */}
-        <div className="flex items-center justify-between pb-2 border-b border-[#152030]/60">
+        <div className="flex items-center justify-between pb-2 border-b border-[#141f2e]">
           <div className="flex items-center gap-2">
             <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse-dot" />
-            <span className="text-xs font-mono font-medium text-text-muted">Live Intelligence Desk</span>
+            <span className="text-xs font-mono font-semibold text-white">Live Intelligence Terminal</span>
           </div>
 
           {activeTurn?.status === "streaming" ? (
-            <span className="flex items-center gap-1.5 rounded-full border border-amber-500/40 bg-amber-500/10 px-2 py-0.5 font-mono text-[10px] font-semibold text-amber-300">
+            <span className="flex items-center gap-1.5 rounded-full border border-amber-500/40 bg-amber-500/10 px-2 py-0.5 font-mono text-[9.5px] font-semibold text-amber-300">
               <span className="h-1.5 w-1.5 rounded-full bg-amber-400 animate-pulse" />
-              GENERATING OUTPUT…
+              STREAMING
             </span>
           ) : (
-            <span className="font-mono text-[10px] text-text-faint">
-              {activeTurn ? "Active Turn" : "Standby"}
+            <span className="font-mono text-[9.5px] text-[#4d5f75]">
+              {activeTurn ? "Active Query" : "Standby"}
             </span>
           )}
         </div>
 
-        {/* Tab Navigation Filter: News / Financials / Analysis */}
-        <div className="flex items-center justify-between border-b border-[#152030] pb-1 text-xs">
-          {(["News", "Financials", "Analysis"] as const).map((tab) => (
+        {/* Tab Navigation: Financials / Technicals / News / Debate */}
+        <div className="flex items-center justify-between border-b border-[#141f2e] pb-1 text-[11px] font-mono">
+          {(["Financials", "Technicals", "News", "Debate"] as const).map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`pb-2 px-2 font-medium transition-colors ${
+              className={`pb-1.5 px-1.5 transition-colors cursor-pointer ${
                 activeTab === tab
-                  ? "border-b-2 border-emerald-400 text-emerald-400 font-semibold"
-                  : "text-text-muted hover:text-white"
+                  ? "border-b-2 border-emerald-400 text-emerald-400 font-bold"
+                  : "text-[#6b809a] hover:text-white"
               }`}
             >
               {tab}
@@ -124,109 +153,126 @@ export default function WorkspaceRightPanel({
         </div>
 
         {/* Company Card Header */}
-        <div className="space-y-2 border-b border-[#152030]/50 pb-3">
+        <div className="space-y-2 border-b border-[#141f2e] pb-3">
           <div className="flex items-center gap-2.5">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl text-white font-black text-sm bg-emerald-600 shadow-sm">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg text-white font-black text-xs bg-emerald-600 shadow-sm">
               {symbolIcon}
             </div>
             <div className="min-w-0 flex-1 truncate">
-              <h4 className="text-sm font-bold text-white truncate leading-tight">{companyName}</h4>
-              <p className="text-[11px] font-mono text-emerald-400 font-medium">{exchangePrice}</p>
+              <h4 className="text-xs sm:text-sm font-bold text-white truncate leading-tight">{companyName}</h4>
+              <p className="text-[10.5px] font-mono text-emerald-400 font-semibold">{exchangePrice}</p>
             </div>
           </div>
           {sector !== "—" && (
-            <div className="flex gap-2 text-[10px] font-mono text-text-faint">
+            <div className="flex gap-1.5 text-[9.5px] font-mono text-[#556980]">
               <span>{sector}</span>
               <span>•</span>
               <span>{industry}</span>
             </div>
           )}
-          <p className="text-xs text-text-muted leading-relaxed line-clamp-3">
+          <p className="text-[11.5px] text-[#8fa2ba] leading-relaxed line-clamp-3">
             {description}
           </p>
         </div>
 
-        {/* Live Intelligence Streaming Alert */}
-        {activeTurn?.status === "streaming" && !activeTurn.research && (
-          <div className="rounded-xl border border-amber-500/25 bg-amber-500/5 p-3 font-mono text-xs space-y-1.5">
-            <div className="flex items-center justify-between text-amber-300 font-semibold text-[11px]">
-              <span className="flex items-center gap-1.5">
-                <span className="h-2 w-2 rounded-full bg-amber-400 animate-ping" />
-                LIVE INTELLIGENCE STREAMING
-              </span>
-              <span className="animate-pulse">● ● ●</span>
-            </div>
-            <p className="text-[11px] text-text-muted leading-relaxed font-sans">
-              Multi-agent desk is gathering real-time prices, news citations, and SEC fundamentals…
-            </p>
-          </div>
-        )}
-
-        {/* Tab 1: Financials Filter */}
+        {/* TAB 1: Financials */}
         {activeTab === "Financials" && (
           <div className="space-y-3">
-            <div className="rounded-xl border border-[#152030] bg-[#09101b] p-3 space-y-2">
-              <div className="font-mono text-[10px] uppercase tracking-wider text-text-faint pb-1 border-b border-[#152030]/60">
-                Key Fundamental Stats
+            <div className="rounded-xl border border-[#142031] bg-[#08101a] p-3 space-y-2">
+              <div className="font-mono text-[9.5px] uppercase tracking-wider text-[#556980] pb-1 border-b border-[#141f2e]">
+                Fundamental Multiples & Valuation
               </div>
 
               <div className="space-y-2 text-xs font-mono">
                 <div className="flex items-center justify-between">
-                  <span className="text-text-muted">Market Cap</span>
+                  <span className="text-[#70849c]">Market Cap</span>
                   <span className="text-white font-semibold">{marketCap}</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-text-muted">Trailing P/E</span>
+                  <span className="text-[#70849c]">Trailing P/E</span>
                   <span className="text-white font-semibold">{peRatio}</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-text-muted">Forward P/E</span>
+                  <span className="text-[#70849c]">Forward P/E</span>
                   <span className="text-white font-semibold">{forwardPe}</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-text-muted">EPS</span>
+                  <span className="text-[#70849c]">EPS (TTM)</span>
                   <span className="text-white font-semibold">{eps}</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-text-muted">52W High</span>
-                  <span className="text-white font-semibold">{fiftyTwoHigh}</span>
+                  <span className="text-[#70849c]">52W Range</span>
+                  <span className="text-white font-semibold">{fiftyTwoHigh} / {fiftyTwoLow}</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-text-muted">52W Low</span>
-                  <span className="text-white font-semibold">{fiftyTwoLow}</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-text-muted">Dividend Yield</span>
+                  <span className="text-[#70849c]">Dividend Yield</span>
                   <span className="text-white font-semibold">{dividendYield}</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-text-muted">Beta</span>
+                  <span className="text-[#70849c]">Beta</span>
                   <span className="text-white font-semibold">{beta}</span>
                 </div>
+                {analystConsensus !== "—" && (
+                  <div className="flex items-center justify-between pt-1 border-t border-[#141f2e]">
+                    <span className="text-emerald-400">Analyst Target</span>
+                    <span className="text-white font-bold">{analystTarget}</span>
+                  </div>
+                )}
               </div>
             </div>
-            <p className="text-[11px] text-text-faint">
-              Market metrics retrieved directly via Yahoo Finance tools.
-            </p>
           </div>
         )}
 
-        {/* Tab 2: News Filter */}
-        {activeTab === "News" && (
+        {/* TAB 2: Technicals & Quantitative Risk */}
+        {activeTab === "Technicals" && (
           <div className="space-y-3">
-            <div className="font-mono text-[10px] uppercase tracking-wider text-text-faint">
-              Verified Headlines ({newsArticles.length})
+            <div className="rounded-xl border border-[#142031] bg-[#08101a] p-3 space-y-2.5 font-mono text-xs">
+              <div className="text-[9.5px] uppercase tracking-wider text-[#556980] pb-1 border-b border-[#141f2e]">
+                Technical Momentum & Volatility
+              </div>
+
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-[#70849c]">RSI (14-Day)</span>
+                  <span className="text-white font-bold">{rsiValue}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-[#70849c]">MACD Signal</span>
+                  <span className="text-emerald-400 font-bold">{macdBias}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-[#70849c]">Annual Volatility</span>
+                  <span className="text-white font-semibold">{volatilityPct}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-[#70849c]">1Y Max Drawdown</span>
+                  <span className="text-rose-400 font-semibold">{maxDrawdownPct}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-[#70849c]">Sharpe Ratio</span>
+                  <span className="text-emerald-400 font-semibold">{sharpeRatio}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* TAB 3: News */}
+        {activeTab === "News" && (
+          <div className="space-y-2.5">
+            <div className="font-mono text-[9.5px] uppercase tracking-wider text-[#556980]">
+              Audited News Citations ({newsArticles.length})
             </div>
 
             {newsArticles.length > 0 ? (
-              <div className="space-y-2.5 max-h-[420px] overflow-y-auto pr-1">
+              <div className="space-y-2 max-h-[380px] overflow-y-auto pr-1">
                 {newsArticles.map((article, idx) => (
                   <div
                     key={idx}
-                    className="rounded-xl border border-[#162234] bg-[#09101b] p-3 space-y-1.5 transition-colors hover:border-emerald-500/30"
+                    className="rounded-lg border border-[#152030] bg-[#080f1a] p-2.5 space-y-1 transition-colors hover:border-emerald-500/30"
                   >
-                    <div className="flex items-center justify-between text-[10px] text-text-faint font-mono">
-                      <span className="text-emerald-400 font-semibold">{article.source || "NewsAPI"}</span>
+                    <div className="flex items-center justify-between text-[9px] text-[#556980] font-mono">
+                      <span className="text-emerald-400 font-semibold">{article.source || "Financial Press"}</span>
                       {article.published_at && (
                         <span>{new Date(article.published_at).toLocaleDateString()}</span>
                       )}
@@ -236,86 +282,67 @@ export default function WorkspaceRightPanel({
                         href={article.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-xs font-semibold text-white hover:text-emerald-300 transition-colors line-clamp-2 block leading-snug"
+                        className="text-[11.5px] font-semibold text-white hover:text-emerald-300 transition-colors line-clamp-2 block leading-snug"
                       >
                         {article.title || "Untitled Article"} ↗
                       </a>
                     ) : (
-                      <p className="text-xs font-semibold text-white line-clamp-2 leading-snug">
+                      <p className="text-[11.5px] font-semibold text-white line-clamp-2 leading-snug">
                         {article.title || "Untitled Article"}
-                      </p>
-                    )}
-                    {article.description && (
-                      <p className="text-[11px] text-text-muted line-clamp-2 leading-relaxed">
-                        {article.description}
                       </p>
                     )}
                   </div>
                 ))}
               </div>
             ) : (
-              <div className="rounded-xl border border-[#162234] bg-[#09101b] p-4 text-center">
-                <p className="text-xs text-text-muted">
-                  {activeTurn ? "No external news headlines returned for this turn." : "Run a company analysis to stream verified headlines."}
+              <div className="rounded-xl border border-[#142031] bg-[#08101a] p-4 text-center">
+                <p className="text-xs text-[#70849c]">
+                  {activeTurn ? "No external news items returned for this query." : "Run a query to populate headlines."}
                 </p>
               </div>
             )}
           </div>
         )}
 
-        {/* Tab 3: Analysis Filter */}
-        {activeTab === "Analysis" && (
-          <div className="space-y-3">
+        {/* TAB 4: Debate */}
+        {activeTab === "Debate" && (
+          <div className="space-y-2.5">
             {activeTurn?.thesis ? (
-              <div className="space-y-3">
-                <div className="rounded-xl border border-emerald-500/30 bg-[#091522] p-3 space-y-1.5">
-                  <div className="flex items-center justify-between">
-                    <span className="text-[10px] uppercase font-mono tracking-wider text-text-faint">Consensus Verdict</span>
-                    <span className="font-mono text-xs font-bold text-emerald-400">
-                      {activeTurn.thesis.recommendation}
-                    </span>
+              <div className="space-y-2.5">
+                <div className="rounded-xl border border-emerald-500/30 bg-[#081625] p-3 space-y-1">
+                  <div className="flex items-center justify-between font-mono text-[9.5px] uppercase text-[#6f849e]">
+                    <span>Consensus Verdict</span>
+                    <span className="text-emerald-400 font-bold">{activeTurn.thesis.recommendation}</span>
                   </div>
-                  <div className="text-[11px] text-text-faint font-mono">
-                    Confidence: {activeTurn.thesis.confidence}/10
-                  </div>
+                  {activeTurn.thesis.key_reasons?.[0] && (
+                    <p className="text-[11px] text-[#c0d2e8] leading-relaxed pt-1 border-t border-white/5">
+                      {activeTurn.thesis.key_reasons[0]}
+                    </p>
+                  )}
                 </div>
 
                 {activeTurn.debate && (
                   <div className="space-y-2">
                     <div className="rounded-lg border border-emerald-500/20 bg-emerald-950/20 p-2.5 text-xs">
-                      <div className="font-semibold text-emerald-400 mb-1">Bull Case Summary</div>
+                      <div className="font-semibold text-emerald-400 mb-1 text-[11px] font-mono">Bull Case Thesis</div>
                       <p className="text-[11px] text-emerald-100/90 leading-relaxed">
                         {activeTurn.debate.bull_case?.summary || "Favorable market positioning."}
                       </p>
                     </div>
 
                     <div className="rounded-lg border border-rose-500/20 bg-rose-950/20 p-2.5 text-xs">
-                      <div className="font-semibold text-rose-400 mb-1">Bear Case Summary</div>
+                      <div className="font-semibold text-rose-400 mb-1 text-[11px] font-mono">Bear Case Risks</div>
                       <p className="text-[11px] text-rose-100/90 leading-relaxed">
                         {activeTurn.debate.bear_case?.summary || "Downside risks identified."}
                       </p>
                     </div>
                   </div>
                 )}
-
-                {activeTurn.risks && (
-                  <div className="rounded-xl border border-[#162234] bg-[#09101b] p-3 space-y-1">
-                    <div className="flex items-center justify-between text-xs">
-                      <span className="text-text-muted font-mono">Assessed Risk Score</span>
-                      <span className="font-mono font-bold text-amber-400">{activeTurn.risks.risk_score}/10</span>
-                    </div>
-                  </div>
-                )}
-              </div>
-            ) : activeTurn?.generalFinance ? (
-              <div className="rounded-xl border border-[#162234] bg-[#09101b] p-3 space-y-2 text-xs">
-                <div className="text-emerald-400 font-semibold font-mono text-[10px] uppercase">Financial Synthesis</div>
-                <p className="text-text-muted leading-relaxed">{activeTurn.generalFinance.answer}</p>
               </div>
             ) : (
-              <div className="rounded-xl border border-[#162234] bg-[#09101b] p-4 text-center">
-                <p className="text-xs text-text-muted">
-                  Specialist agent verdicts will appear here as analysis completes.
+              <div className="rounded-xl border border-[#142031] bg-[#08101a] p-4 text-center">
+                <p className="text-xs text-[#70849c]">
+                  Run an equity analysis to populate adversarial bull vs bear scenarios.
                 </p>
               </div>
             )}

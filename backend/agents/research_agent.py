@@ -9,14 +9,32 @@ from langchain_core.messages import AIMessage
 from config import llm
 from graph.state import GraphState
 from prompts.research_prompt import RESEARCH_PROMPT
-from tools.company_news_tool import get_company_news
-from tools.company_info_tool import get_company_info
-from tools.stock_price_tool import get_stock_price
+from tools import (
+    get_stock_price,
+    get_company_news,
+    get_company_info,
+    get_historical_stock_data,
+    get_financial_statements,
+    get_technical_indicators,
+    compare_companies,
+    get_risk_analysis,
+    get_analyst_recommendations,
+)
 
 from schemas.research_state import ResearchData, ToolOutputDict
 
 
-TOOLS = [get_stock_price, get_company_news, get_company_info]
+TOOLS = [
+    get_stock_price,
+    get_company_news,
+    get_company_info,
+    get_historical_stock_data,
+    get_financial_statements,
+    get_technical_indicators,
+    compare_companies,
+    get_risk_analysis,
+    get_analyst_recommendations,
+]
 
 
 def extract_output_text(output) -> str:

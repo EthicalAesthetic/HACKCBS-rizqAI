@@ -19,5 +19,6 @@ PASSWORD_RESET_REDIRECT_URL = os.getenv(
     "PASSWORD_RESET_REDIRECT_URL",
     "http://localhost:3000/auth/reset-password",
 )
-DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./rizqai.db")
+DEFAULT_DB = "sqlite:////tmp/rizqai.db" if os.getenv("VERCEL") else "sqlite:///./rizqai.db"
+DATABASE_URL = os.getenv("DATABASE_URL", DEFAULT_DB)
 JWT_SECRET = os.getenv("JWT_SECRET")
