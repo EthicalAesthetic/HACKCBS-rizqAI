@@ -1,5 +1,6 @@
 "use client";
 
+import { Suspense } from "react";
 import Navbar from "@/components/landing/Navbar";
 import HeroSection from "@/components/landing/HeroSection";
 import TrustLogos from "@/components/landing/TrustLogos";
@@ -19,8 +20,9 @@ export default function LandingPage() {
         <HowItWorksSection />
       </main>
       <Footer />
-      <AuthModal />
+      <Suspense fallback={null}>
+        <AuthModal />
+      </Suspense>
     </div>
   );
 }
-
