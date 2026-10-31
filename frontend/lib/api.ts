@@ -236,6 +236,50 @@ export async function checkHealth(): Promise<boolean> {
   }
 }
 
+export interface CandleData {
+  date: string;
+  open: number;
+  high: number;
+  low: number;
+  close: number;
+  volume: number;
+  sma20?: number | null;
+}
+
+export interface CandleResponse {
+  symbol: string;
+  summary: {
+    symbol: string;
+    period: string;
+    interval: string;
+    candle_count: number;
+    latest_close: number;
+    period_change: number;
+    period_change_percent: number;
+    period_high: number;
+    period_low: number;
+    avg_volume: number;
+  };
+  candles: CandleData[];
+}
+
+/** GET /analysis/candles/{symbol}?period={period} */
+export async function fetchCandles(
+  symbol: string,
+  period: "1mo" | "3mo" | "6mo" | "1y" = "3mo"
+): Promise<CandleResponse | null> {
+  try {
+    const res = await fetch(
+      `${ANALYSIS_URL}/candles/${encodeURIComponent(symbol)}?period=${period}`,
+      { cache: "no-store" }
+    );
+    if (!res.ok) return null;
+    return (await res.json()) as CandleResponse;
+  } catch {
+    return null;
+  }
+}
+
 const CONVERSATIONS_URL = `${API_BASE_URL}/conversations`;
 
 /** POST /conversations — create a new conversation thread */

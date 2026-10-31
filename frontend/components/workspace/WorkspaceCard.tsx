@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import type { AgentTask, AnalysisTurn, StreamLogEntry } from "@/lib/types";
 import { timeAgo } from "@/lib/format";
+import CandlestickChart from "./CandlestickChart";
 
 interface WorkspaceCardProps {
   turn: AnalysisTurn;
@@ -573,7 +574,12 @@ export default function WorkspaceCard({ turn }: WorkspaceCardProps) {
               </div>
             </div>
 
-            {/* 7C. Adversarial Analysis (Bull vs Bear Debate) */}
+            {/* 7C. Interactive Candlestick Chart (OHLCV + Volume + SMA20) */}
+            {companySymbol && (
+              <CandlestickChart symbol={companySymbol} />
+            )}
+
+            {/* 7D. Adversarial Analysis (Bull vs Bear Debate) */}
             {(opportunities.length > 0 || risks.length > 0) && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {opportunities.length > 0 && (
