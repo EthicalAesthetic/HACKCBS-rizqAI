@@ -269,34 +269,33 @@ export default function WorkspaceCard({ turn }: WorkspaceCardProps) {
     }
   }
 
-  // Thesis details & Bold Confidence calculations
+  // Thesis details & One-line rationale
   const recommendation = turn.thesis?.recommendation || (isStreaming ? "EVALUATING" : "HOLD");
-  const confidence = turn.thesis?.confidence ? `${turn.thesis.confidence}/10` : (isStreaming ? "Pending" : "—");
   const thesisNarrative = turn.thesis?.investment_thesis;
 
-  const confidenceNum = turn.thesis?.confidence ?? (turn.status === "done" && turn.thesis ? 7.5 : null);
-  const confidencePercent = confidenceNum != null ? Math.min(100, Math.round((confidenceNum / 10) * 100)) : 0;
-
-  let convictionLabel = "CALCULATING CONVICTION…";
-  let confidenceColor = "#94a3b8";
-  if (confidenceNum != null) {
-    if (confidenceNum >= 8.0) {
-      convictionLabel = "HIGH MODEL CONVICTION";
-      confidenceColor = "#34d399";
-    } else if (confidenceNum >= 6.0) {
-      convictionLabel = "MODERATE CONVICTION";
-      confidenceColor = "#fbbf24";
-    } else {
-      convictionLabel = "CAUTIOUS CONVICTION";
-      confidenceColor = "#f87171";
+  const verdictReason = useMemo(() => {
+    if (turn.thesis?.key_reasons && turn.thesis.key_reasons.length > 0) {
+      return turn.thesis.key_reasons[0];
     }
-  }
+    if (turn.thesis?.investment_thesis) {
+      const sentences = turn.thesis.investment_thesis.split(/(?<=[.!?])\s+/);
+      if (sentences[0] && sentences[0].trim().length > 10) {
+        return sentences[0].trim();
+      }
+    }
+    if (recommendation === "BUY") {
+      return "Favorable risk-reward profile backed by durable competitive moats and sustained upside momentum.";
+    }
+    if (recommendation === "SELL") {
+      return "Heightened downside vulnerabilities and compressed margins outweigh near-term valuation upside.";
+    }
+    return "Balanced risk-reward profile; maintaining disciplined hold while awaiting clearer inflection catalysts.";
+  }, [turn.thesis, recommendation]);
 
   let verdictSubtitle = "AGGREGATED MULTI-AGENT CONSENSUS";
   let verdictIcon = "■";
   let verdictContainerStyle = "border-[#1e2e46] bg-gradient-to-br from-[#0c1828] via-[#09121f] to-[#060c15]";
   let verdictBadgeStyle = "border-amber-400 bg-amber-500/20 text-amber-300 drop-shadow-[0_0_20px_rgba(245,158,11,0.4)]";
-  let confidenceBarStyle = "bg-gradient-to-r from-amber-500 to-yellow-300";
   let verdictGlowColor = "rgba(245, 158, 11, 0.2)";
 
   if (recommendation === "BUY") {
@@ -304,21 +303,18 @@ export default function WorkspaceCard({ turn }: WorkspaceCardProps) {
     verdictIcon = "▲";
     verdictContainerStyle = "border-emerald-500/40 bg-gradient-to-br from-emerald-950/40 via-[#091924] to-[#061019] shadow-emerald-950/40";
     verdictBadgeStyle = "border-emerald-400 bg-emerald-500/25 text-emerald-300 drop-shadow-[0_0_24px_rgba(16,185,129,0.5)]";
-    confidenceBarStyle = "bg-gradient-to-r from-emerald-500 via-emerald-400 to-teal-300";
     verdictGlowColor = "rgba(16, 185, 129, 0.25)";
   } else if (recommendation === "SELL") {
     verdictSubtitle = "BEARISH OUTLOOK · REDUCE / HEDGE EXPOSURE";
     verdictIcon = "▼";
     verdictContainerStyle = "border-rose-500/40 bg-gradient-to-br from-rose-950/40 via-[#1a0c14] to-[#0f070c] shadow-rose-950/40";
     verdictBadgeStyle = "border-rose-400 bg-rose-500/25 text-rose-300 drop-shadow-[0_0_24px_rgba(244,63,94,0.5)]";
-    confidenceBarStyle = "bg-gradient-to-r from-rose-500 via-rose-400 to-red-400";
     verdictGlowColor = "rgba(244, 63, 94, 0.25)";
   } else if (recommendation === "HOLD" || recommendation === "WATCH") {
     verdictSubtitle = "NEUTRAL STANCE · MAINTAIN DISCIPLINED HOLD";
     verdictIcon = "■";
     verdictContainerStyle = "border-amber-500/40 bg-gradient-to-br from-amber-950/30 via-[#14120e] to-[#0a0d14] shadow-amber-950/30";
     verdictBadgeStyle = "border-amber-400 bg-amber-500/20 text-amber-300 drop-shadow-[0_0_20px_rgba(245,158,11,0.4)]";
-    confidenceBarStyle = "bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-300";
     verdictGlowColor = "rgba(245, 158, 11, 0.2)";
   }
 
@@ -498,7 +494,7 @@ export default function WorkspaceCard({ turn }: WorkspaceCardProps) {
         {(turn.thesis || turn.research || turn.risks || turn.debate) && (
           <div className="pt-2 space-y-6 border-t border-[#18253a]">
 
-            {/* 7A. Bold Executive Verdict & Model Conviction Hero Card */}
+            {/* 7A. Bold Executive Verdict Hero Card with One-Line Rationale */}
             <div className={`relative overflow-hidden rounded-2xl border p-5 sm:p-7 shadow-2xl transition-all ${verdictContainerStyle}`}>
               {/* Radial glow background */}
               <div 
@@ -506,71 +502,45 @@ export default function WorkspaceCard({ turn }: WorkspaceCardProps) {
                 style={{ background: verdictGlowColor }} 
               />
 
-              <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-                {/* Left: Prominent Verdict Announcement */}
-                <div className="space-y-3">
+              <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+                {/* Left: Verdict Pill + One-Line Reason Beside It */}
+                <div className="space-y-3 flex-1 min-w-0">
                   <div className="flex items-center gap-2 font-mono text-[11px] font-bold uppercase tracking-[0.2em] text-[#94a3b8]">
                     <span>🏛️ Consensus Institutional Verdict</span>
                     <span className="h-1 w-1 rounded-full bg-[#475569]" />
                     <span className="text-emerald-400 font-semibold">{companySymbol?.toUpperCase() || "TARGET EQUITY"}</span>
                   </div>
 
-                  <div className="flex flex-wrap items-center gap-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6">
                     {/* Big Bold Pill */}
-                    <div className={`inline-flex items-center gap-3 rounded-2xl border-2 px-6 py-3 text-3xl sm:text-4xl font-black font-mono tracking-wider shadow-2xl ${verdictBadgeStyle}`}>
+                    <div className={`inline-flex shrink-0 items-center gap-3 rounded-2xl border-2 px-6 py-3 text-3xl sm:text-4xl font-black font-mono tracking-wider shadow-2xl ${verdictBadgeStyle}`}>
                       <span className="text-2xl sm:text-3xl">{verdictIcon}</span>
                       <span>{recommendation}</span>
                     </div>
 
-                    <div className="flex flex-col">
-                      <span className="text-xs sm:text-[13px] font-mono font-bold tracking-wide uppercase text-white">
-                        {verdictSubtitle}
-                      </span>
-                      <span className="text-[11px] text-text-muted">
-                        Synthesized across Fundamental, Risk & Adversarial Multi-Agent Desks
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Right: Bold High-Contrast Confidence Score & Meter */}
-                <div className="flex flex-col sm:flex-row sm:items-center gap-6 lg:border-l lg:border-white/10 lg:pl-7">
-                  {/* Score Display */}
-                  <div className="space-y-1">
-                    <div className="text-[10px] font-mono uppercase tracking-[0.16em] text-text-faint">
-                      Model Conviction
-                    </div>
-                    <div className="flex items-baseline gap-1.5 font-mono">
-                      <span className="text-3xl sm:text-4xl font-black text-white tracking-tight drop-shadow-md">
-                        {confidenceNum != null ? confidenceNum.toFixed(1) : (turn.thesis ? "8.0" : "—")}
-                      </span>
-                      <span className="text-lg font-bold text-text-muted">/ 10</span>
-                    </div>
-                    <div className="text-[11px] font-mono font-semibold" style={{ color: confidenceColor }}>
-                      {convictionLabel}
-                    </div>
-                  </div>
-
-                  {/* Visual Confidence Bar Meter */}
-                  <div className="w-36 sm:w-44 space-y-1.5 font-mono text-[10px]">
-                    <div className="flex justify-between text-text-faint">
-                      <span>Conviction</span>
-                      <span className="font-bold text-white">{confidencePercent}%</span>
-                    </div>
-                    <div className="h-3.5 w-full overflow-hidden rounded-full bg-[#070e1a] border border-white/10 p-0.5 shadow-inner">
-                      <div 
-                        className={`h-full rounded-full transition-all duration-700 shadow-sm ${confidenceBarStyle}`}
-                        style={{ width: `${confidencePercent}%` }}
-                      />
-                    </div>
-                    {turn.risks && (
-                      <div className="flex justify-between text-[10px] text-text-faint pt-0.5">
-                        <span>Downside Risk:</span>
-                        <span className="text-amber-400 font-semibold">{turn.risks.risk_score}/10 ({turn.risks.risk_level})</span>
+                    {/* One-Line Reason Beside Verdict */}
+                    <div className="flex-1 min-w-0 space-y-1 sm:border-l sm:border-white/10 sm:pl-6">
+                      <div className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.16em] text-emerald-400 font-semibold">
+                        <span>WHY: KEY RATIONALE</span>
+                        <span className="text-white/20">•</span>
+                        <span className="text-text-faint">{verdictSubtitle}</span>
                       </div>
-                    )}
+                      <p className="text-sm sm:text-[15px] font-semibold text-white leading-snug">
+                        {verdictReason}
+                      </p>
+                    </div>
                   </div>
                 </div>
+
+                {/* Right: Downside Risk Badge (clean, no conviction score) */}
+                {turn.risks && (
+                  <div className="shrink-0 rounded-xl border border-white/10 bg-[#060c16]/80 backdrop-blur-sm px-4 py-3 font-mono space-y-1">
+                    <div className="text-[10px] text-text-faint uppercase tracking-wider">Downside Risk</div>
+                    <div className="text-sm font-bold text-amber-400">
+                      {turn.risks.risk_score}/10 · {turn.risks.risk_level}
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Investment Thesis Narrative */}
