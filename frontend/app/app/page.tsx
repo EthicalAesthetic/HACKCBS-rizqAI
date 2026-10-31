@@ -377,31 +377,18 @@ export default function WorkspacePage() {
             </div>
           ) : turns.map((turn, index) => (
               <div key={turn.id || index} className="space-y-4 pt-2">
-                {/* User Message (Stage Research Query) */}
-                <div className="flex flex-col items-end gap-1.5">
-                  <div className="flex items-center gap-2 font-mono text-[11px] text-emerald-400 font-semibold pr-1">
-                    <span className="flex h-4 w-4 items-center justify-center rounded-full bg-emerald-500/20 text-[10px] border border-emerald-500/40">
-                      {index + 1}
-                    </span>
-                    <span>STAGE {index + 1} RESEARCH QUERY</span>
+                {/* User Message */}
+                <div className="flex justify-end items-end gap-2.5 w-full">
+                  <div className="max-w-[85%] sm:max-w-[75%] rounded-2xl rounded-tr-sm border border-[#1e304b] bg-[#101b2c] p-4 text-xs sm:text-sm text-white shadow-md">
+                    <p className="leading-relaxed">{turn.query}</p>
                   </div>
-                  <div className="flex justify-end items-end gap-2.5 w-full">
-                    <div className="max-w-[85%] sm:max-w-[75%] rounded-2xl rounded-tr-sm border border-[#1e304b] bg-[#101b2c] p-4 text-xs sm:text-sm text-white shadow-md">
-                      <p className="leading-relaxed">{turn.query}</p>
-                    </div>
-                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-tr from-emerald-600 to-teal-600 text-xs font-bold text-white shadow-sm">
-                      {userInitial}
-                    </div>
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-tr from-emerald-600 to-teal-600 text-xs font-bold text-white shadow-sm">
+                    {userInitial}
                   </div>
                 </div>
 
-                {/* Multi-Agent Assistant Output & Next Stage */}
-                <WorkspaceCard 
-                  turn={turn} 
-                  turnIndex={index}
-                  isLatest={index === turns.length - 1}
-                  onExecuteNextStage={(q) => executeQuery(q)}
-                />
+                {/* Multi-Agent Assistant Output */}
+                <WorkspaceCard turn={turn} />
               </div>
           ))}
 

@@ -6,9 +6,6 @@ import { timeAgo } from "@/lib/format";
 
 interface WorkspaceCardProps {
   turn: AnalysisTurn;
-  turnIndex?: number;
-  isLatest?: boolean;
-  onExecuteNextStage?: (query: string) => void;
 }
 
 type StepStatus = "done" | "active" | "pending" | "error";
@@ -19,15 +16,9 @@ interface PipelineStep {
   status: StepStatus;
 }
 
-export default function WorkspaceCard({
-  turn,
-  turnIndex = 0,
-  isLatest = false,
-  onExecuteNextStage,
-}: WorkspaceCardProps) {
+export default function WorkspaceCard({ turn }: WorkspaceCardProps) {
   const [flowOpen, setFlowOpen] = useState(true);
   const [showAllSources, setShowAllSources] = useState(false);
-  const [inlineNextQuery, setInlineNextQuery] = useState("");
 
   const isStreaming = turn.status === "streaming";
   const isError = turn.status === "error";
@@ -345,30 +336,6 @@ export default function WorkspaceCard({
     ? turn.debate.bear_case.arguments.slice(0, 4)
     : [];
 
-  // Single sequential next stage in order (no choice matrix)
-  const nextStage = useMemo(() => {
-    const sym = companySymbol?.toUpperCase() || (turn.plan?.companies?.[0]?.toUpperCase() || "the equity");
-
-    if (turn.thesis?.next_steps && turn.thesis.next_steps.length > 0) {
-      return {
-        title: "Consensus Strategic Follow-up",
-        query: `${turn.thesis.next_steps[0]} for ${sym}`,
-      };
-    }
-
-    if (turn.guardrail?.category === "general_finance" || turn.generalFinance) {
-      return {
-        title: "Quantitative Mechanics & Hedging Execution",
-        query: `Provide mathematical breakdown, formulas, and institutional portfolio execution mechanics for this strategy`,
-      };
-    }
-
-    return {
-      title: "DCF Intrinsic Valuation & Forward Modeling",
-      query: `Forecast discounted cash flow (DCF) intrinsic value, operating margins, and EBITDA targets for ${sym}`,
-    };
-  }, [turn, companySymbol]);
-
   return (
     <div className="space-y-3">
       {/* Live Generating Output Top Alert Banner */}
@@ -527,475 +494,288 @@ export default function WorkspaceCard({
           </div>
         )}
 
-        {/* 7. Full Company Equity Analysis Pipeline (Runs in Order) */}
+        {/* 7. Comprehensive Institutional Equity Analysis Dossier */}
         {(turn.thesis || turn.research || turn.risks || turn.debate) && (
-          <div className="pt-2 space-y-5 border-t border-[#18253a]">
+          <div className="pt-2 space-y-6 border-t border-[#18253a]">
 
-            {/* STAGE 1: MARKET & FUNDAMENTALS RESEARCH */}
-            {(turn.research || toolOutputs.length > 0) && (
-              <div className="rounded-xl border border-[#16253a] bg-[#09111c] p-4.5 space-y-3.5 shadow-md">
-                <div className="flex items-center justify-between border-b border-[#142032] pb-2.5">
-                  <div className="flex items-center gap-2 font-mono text-xs">
-                    <span className="flex h-5 w-5 items-center justify-center rounded-md bg-emerald-500/15 text-emerald-400 font-bold border border-emerald-500/30 text-[11px]">
-                      1
-                    </span>
-                    <span className="font-bold uppercase tracking-wider text-white">
-                      Stage 1: Market & Fundamentals Research
-                    </span>
+            {/* 7A. Bold Executive Verdict & Model Conviction Hero Card */}
+            <div className={`relative overflow-hidden rounded-2xl border p-5 sm:p-7 shadow-2xl transition-all ${verdictContainerStyle}`}>
+              {/* Radial glow background */}
+              <div 
+                className="pointer-events-none absolute -right-12 -top-12 h-56 w-56 rounded-full blur-3xl opacity-35" 
+                style={{ background: verdictGlowColor }} 
+              />
+
+              <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+                {/* Left: Prominent Verdict Announcement */}
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2 font-mono text-[11px] font-bold uppercase tracking-[0.2em] text-[#94a3b8]">
+                    <span>🏛️ Consensus Institutional Verdict</span>
+                    <span className="h-1 w-1 rounded-full bg-[#475569]" />
+                    <span className="text-emerald-400 font-semibold">{companySymbol?.toUpperCase() || "TARGET EQUITY"}</span>
                   </div>
-                  <span className="rounded bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 font-mono text-[10px] text-emerald-400 font-semibold">
-                    ✓ Verified Live
-                  </span>
-                </div>
 
-                {/* Stage 1 Query */}
-                <div className="rounded-lg border border-[#152236] bg-[#060c16] px-3.5 py-2 font-mono text-xs text-text-muted flex items-center gap-2">
-                  <span className="text-emerald-400 font-bold">Query:</span>
-                  <span className="text-white italic">&ldquo;Screen real-time market price, valuation multiples, and SEC regulatory filings for {companySymbol?.toUpperCase() || "the equity"}&rdquo;</span>
-                </div>
-
-                {/* Stage 1 Results: Financial Stats Bar */}
-                <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 rounded-xl border border-[#162234] bg-[#070d18] p-3 text-xs font-mono">
-                  <div>
-                    <div className="text-[10px] text-text-faint">Price</div>
-                    <div className="text-sm font-semibold text-white mt-0.5">
-                      {price} {priceDelta && <span className="text-[10px] text-emerald-400 font-normal">{priceDelta}</span>}
+                  <div className="flex flex-wrap items-center gap-4">
+                    {/* Big Bold Pill */}
+                    <div className={`inline-flex items-center gap-3 rounded-2xl border-2 px-6 py-3 text-3xl sm:text-4xl font-black font-mono tracking-wider shadow-2xl ${verdictBadgeStyle}`}>
+                      <span className="text-2xl sm:text-3xl">{verdictIcon}</span>
+                      <span>{recommendation}</span>
                     </div>
-                  </div>
-                  <div>
-                    <div className="text-[10px] text-text-faint">Market Cap</div>
-                    <div className="text-sm font-semibold text-white mt-0.5">{marketCap}</div>
-                  </div>
-                  <div>
-                    <div className="text-[10px] text-text-faint">P/E Ratio</div>
-                    <div className="text-sm font-semibold text-white mt-0.5">{peRatio}</div>
-                  </div>
-                  <div>
-                    <div className="text-[10px] text-text-faint">52W Range</div>
-                    <div className="text-sm font-semibold text-white mt-0.5">{fiftyTwoRange}</div>
-                  </div>
-                  <div>
-                    <div className="text-[10px] text-text-faint">Dividend Yield</div>
-                    <div className="text-sm font-semibold text-white mt-0.5">{dividendYield}</div>
-                  </div>
-                </div>
 
-                {/* Citations & Data Sources */}
-                <div className="rounded-xl border border-[#19273c] bg-[#070e1a] p-3.5 space-y-3">
-                  <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#152030] pb-2">
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs">📑</span>
-                      <span className="text-xs font-mono font-bold uppercase tracking-wider text-white">
-                        Verified Sources & Citations
+                    <div className="flex flex-col">
+                      <span className="text-xs sm:text-[13px] font-mono font-bold tracking-wide uppercase text-white">
+                        {verdictSubtitle}
+                      </span>
+                      <span className="text-[11px] text-text-muted">
+                        Synthesized across Fundamental, Risk & Adversarial Multi-Agent Desks
                       </span>
                     </div>
-                    <span className="font-mono text-[10px] text-emerald-400">
-                      SEC Edgar + Yahoo Finance
-                    </span>
                   </div>
+                </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs font-mono">
-                    <div className="rounded-lg border border-[#162234] bg-[#0a1220] p-2.5 space-y-1">
-                      <div className="flex items-center gap-1.5 text-emerald-400 font-semibold text-[11px]">
-                        <span>📈</span> Yahoo Finance Real-Time API
-                      </div>
-                      <p className="text-[10.5px] text-text-muted leading-relaxed font-sans">
-                        Market quotes, spreads, 52-week pricing bounds, and valuation multiples.
-                      </p>
+                {/* Right: Bold High-Contrast Confidence Score & Meter */}
+                <div className="flex flex-col sm:flex-row sm:items-center gap-6 lg:border-l lg:border-white/10 lg:pl-7">
+                  {/* Score Display */}
+                  <div className="space-y-1">
+                    <div className="text-[10px] font-mono uppercase tracking-[0.16em] text-text-faint">
+                      Model Conviction
                     </div>
-
-                    <div className="rounded-lg border border-[#162234] bg-[#0a1220] p-2.5 space-y-1">
-                      <div className="flex items-center gap-1.5 text-cyan-400 font-semibold text-[11px]">
-                        <span>🏛️</span> SEC EDGAR Disclosures
-                      </div>
-                      <p className="text-[10.5px] text-text-muted leading-relaxed font-sans">
-                        Audited Form 10-K (Annual) and 10-Q (Quarterly) balance sheet filings.
-                      </p>
+                    <div className="flex items-baseline gap-1.5 font-mono">
+                      <span className="text-3xl sm:text-4xl font-black text-white tracking-tight drop-shadow-md">
+                        {confidenceNum != null ? confidenceNum.toFixed(1) : (turn.thesis ? "8.0" : "—")}
+                      </span>
+                      <span className="text-lg font-bold text-text-muted">/ 10</span>
+                    </div>
+                    <div className="text-[11px] font-mono font-semibold" style={{ color: confidenceColor }}>
+                      {convictionLabel}
                     </div>
                   </div>
 
-                  {/* News Articles Citations */}
-                  {newsCitations.length > 0 && (
-                    <div className="space-y-1.5 pt-1">
-                      <div className="text-[10px] font-mono uppercase tracking-wider text-text-faint">
-                        Headline Citations ({newsCitations.length})
-                      </div>
-                      <div className="space-y-1">
-                        {newsCitations.slice(0, 3).map((art, idx) => (
-                          <div
-                            key={idx}
-                            className="flex items-start justify-between gap-2 rounded-lg border border-[#152030] bg-[#0a111e] p-2 text-xs hover:border-[#1e304b] transition-colors"
-                          >
-                            <div className="min-w-0 flex-1">
-                              {art.url ? (
-                                <a
-                                  href={art.url}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="font-medium text-white hover:text-emerald-400 transition-colors line-clamp-1 text-[11px]"
-                                >
-                                  {art.title}
-                                </a>
-                              ) : (
-                                <span className="font-medium text-white line-clamp-1 text-[11px]">{art.title}</span>
-                              )}
-                              <div className="flex items-center gap-2 text-[9px] font-mono text-text-faint mt-0.5">
-                                <span className="text-emerald-400 font-semibold">{art.source}</span>
-                                {art.published_at && (
-                                  <>
-                                    <span>•</span>
-                                    <span>{timeAgo(art.published_at) || art.published_at}</span>
-                                  </>
-                                )}
-                              </div>
-                            </div>
-                            {art.url && (
-                              <a
-                                href={art.url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="shrink-0 text-[10px] font-mono text-emerald-400 hover:text-emerald-300"
-                              >
-                                ↗
-                              </a>
-                            )}
-                          </div>
-                        ))}
-                      </div>
+                  {/* Visual Confidence Bar Meter */}
+                  <div className="w-36 sm:w-44 space-y-1.5 font-mono text-[10px]">
+                    <div className="flex justify-between text-text-faint">
+                      <span>Conviction</span>
+                      <span className="font-bold text-white">{confidencePercent}%</span>
                     </div>
-                  )}
-
-                  {/* Raw Data Toggle */}
-                  {toolOutputs.length > 0 && (
-                    <div className="pt-1.5 border-t border-[#152030]">
-                      <button
-                        onClick={() => setShowAllSources(!showAllSources)}
-                        className="text-[10px] font-mono text-emerald-400 hover:text-emerald-300 transition-colors cursor-pointer"
-                      >
-                        {showAllSources ? "Hide Raw Tool JSON ↑" : "Inspect Raw Tool Payloads & Telemetry →"}
-                      </button>
-
-                      {showAllSources && (
-                        <div className="mt-2 rounded-xl border border-[#162234] bg-[#040810] p-2.5 text-[10px] font-mono space-y-2 max-h-48 overflow-y-auto">
-                          {toolOutputs.map((step, idx) => (
-                            <div key={idx} className="border-t border-[#121b2b] first:border-0 pt-1.5">
-                              <span className="text-amber-400 font-bold">{step.tool}</span>
-                              <pre className="mt-1 text-text-faint whitespace-pre-wrap overflow-x-auto text-[9.5px]">
-                                {typeof step.output === "object" ? JSON.stringify(step.output, null, 2) : String(step.output)}
-                              </pre>
-                            </div>
-                          ))}
-                        </div>
-                      )}
+                    <div className="h-3.5 w-full overflow-hidden rounded-full bg-[#070e1a] border border-white/10 p-0.5 shadow-inner">
+                      <div 
+                        className={`h-full rounded-full transition-all duration-700 shadow-sm ${confidenceBarStyle}`}
+                        style={{ width: `${confidencePercent}%` }}
+                      />
                     </div>
-                  )}
+                    {turn.risks && (
+                      <div className="flex justify-between text-[10px] text-text-faint pt-0.5">
+                        <span>Downside Risk:</span>
+                        <span className="text-amber-400 font-semibold">{turn.risks.risk_score}/10 ({turn.risks.risk_level})</span>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
-            )}
 
-            {/* STAGE 2: DOWNSIDE RISK ASSESSMENT & CATALYST STRESS TEST */}
-            {turn.risks && (
-              <div className="rounded-xl border border-[#261928] bg-[#0f0a15] p-4.5 space-y-3.5 shadow-md">
-                <div className="flex items-center justify-between border-b border-[#221626] pb-2.5">
-                  <div className="flex items-center gap-2 font-mono text-xs">
-                    <span className="flex h-5 w-5 items-center justify-center rounded-md bg-amber-500/15 text-amber-400 font-bold border border-amber-500/30 text-[11px]">
-                      2
-                    </span>
-                    <span className="font-bold uppercase tracking-wider text-white">
-                      Stage 2: Downside Risk Assessment & Catalyst Stress Test
-                    </span>
-                  </div>
-                  <span className="rounded bg-amber-500/10 border border-amber-500/30 px-2 py-0.5 font-mono text-[10px] text-amber-300 font-semibold">
-                    {turn.risks.risk_score}/10 · {turn.risks.risk_level} RISK
-                  </span>
+              {/* Investment Thesis Narrative */}
+              {thesisNarrative && (
+                <div className="relative z-10 space-y-1.5 pt-5 mt-5 border-t border-white/10">
+                  <h4 className="text-xs font-mono font-semibold uppercase tracking-wider text-text-muted">
+                    Consensus Investment Thesis
+                  </h4>
+                  <p className="text-xs sm:text-[13.5px] leading-relaxed text-text">
+                    {thesisNarrative}
+                  </p>
                 </div>
+              )}
+            </div>
 
-                {/* Stage 2 Query */}
-                <div className="rounded-lg border border-[#221727] bg-[#08050c] px-3.5 py-2 font-mono text-xs text-text-muted flex items-center gap-2">
-                  <span className="text-amber-400 font-bold">Query:</span>
-                  <span className="text-white italic">&ldquo;Evaluate downside risks, margin compression, and macroeconomic catalysts for {companySymbol?.toUpperCase() || "the equity"}&rdquo;</span>
-                </div>
-
-                {/* Stage 2 Results */}
-                <div className="rounded-xl border border-rose-500/20 bg-[#160a12] p-4 space-y-2">
-                  <div className="flex items-center justify-between text-xs font-semibold text-rose-400 font-mono">
-                    <span className="flex items-center gap-2">
-                      <span>!</span> Downside Catalysts & Bear Vulnerabilities
-                    </span>
-                    <span className="text-[10px] text-text-faint font-normal">
-                      Score: {turn.risks.risk_score}/10 ({turn.risks.risk_level})
-                    </span>
-                  </div>
-                  <ul className="space-y-1.5 text-xs text-text-muted">
-                    {risks.map((risk, i) => (
-                      <li key={i} className="flex items-start gap-2">
-                        <span className="text-rose-400 text-[10px] mt-0.5">•</span>
-                        <span className="leading-snug">{risk}</span>
-                      </li>
-                    ))}
-                  </ul>
+            {/* 7B. Financial Stats Bar (Live Fundamentals) */}
+            <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 rounded-xl border border-[#162234] bg-[#070d18] p-3.5 text-xs font-mono shadow-md">
+              <div>
+                <div className="text-[10px] text-text-faint uppercase tracking-wider">Price</div>
+                <div className="text-sm sm:text-base font-semibold text-white mt-0.5">
+                  {price} {priceDelta && <span className="text-[10px] text-emerald-400 font-normal">{priceDelta}</span>}
                 </div>
               </div>
-            )}
+              <div>
+                <div className="text-[10px] text-text-faint uppercase tracking-wider">Market Cap</div>
+                <div className="text-sm sm:text-base font-semibold text-white mt-0.5">{marketCap}</div>
+              </div>
+              <div>
+                <div className="text-[10px] text-text-faint uppercase tracking-wider">Trailing P/E</div>
+                <div className="text-sm sm:text-base font-semibold text-white mt-0.5">{peRatio}</div>
+              </div>
+              <div>
+                <div className="text-[10px] text-text-faint uppercase tracking-wider">52W Range</div>
+                <div className="text-sm sm:text-base font-semibold text-white mt-0.5">{fiftyTwoRange}</div>
+              </div>
+              <div>
+                <div className="text-[10px] text-text-faint uppercase tracking-wider">Dividend Yield</div>
+                <div className="text-sm sm:text-base font-semibold text-white mt-0.5">{dividendYield}</div>
+              </div>
+            </div>
 
-            {/* STAGE 3: ADVERSARIAL BULL VS. BEAR DEBATE */}
-            {turn.debate && (
-              <div className="rounded-xl border border-[#19273c] bg-[#08111e] p-4.5 space-y-3.5 shadow-md">
-                <div className="flex items-center justify-between border-b border-[#152336] pb-2.5">
-                  <div className="flex items-center gap-2 font-mono text-xs">
-                    <span className="flex h-5 w-5 items-center justify-center rounded-md bg-blue-500/15 text-blue-400 font-bold border border-blue-500/30 text-[11px]">
-                      3
-                    </span>
-                    <span className="font-bold uppercase tracking-wider text-white">
-                      Stage 3: Adversarial Bull vs. Bear Debate
-                    </span>
-                  </div>
-                  <span className="rounded bg-blue-500/10 border border-blue-500/30 px-2 py-0.5 font-mono text-[10px] text-blue-300 font-semibold">
-                    Adversarial Synthesis
-                  </span>
-                </div>
-
-                {/* Stage 3 Query */}
-                <div className="rounded-lg border border-[#162438] bg-[#050b14] px-3.5 py-2 font-mono text-xs text-text-muted flex items-center gap-2">
-                  <span className="text-blue-400 font-bold">Query:</span>
-                  <span className="text-white italic">&ldquo;Synthesize bull case vs bear case debate and points of conflict for {companySymbol?.toUpperCase() || "the equity"}&rdquo;</span>
-                </div>
-
-                {/* Stage 3 Results: Two Column Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {opportunities.length > 0 && (
-                    <div className="rounded-xl border border-emerald-500/20 bg-gradient-to-b from-[#0a1824] to-[#08131d] p-4 space-y-2">
+            {/* 7C. Adversarial Analysis (Bull vs Bear Debate) */}
+            {(opportunities.length > 0 || risks.length > 0) && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {opportunities.length > 0 && (
+                  <div className="rounded-xl border border-emerald-500/20 bg-gradient-to-b from-[#0a1824] to-[#08131d] p-4.5 space-y-2.5 shadow-md">
+                    <div className="flex items-center justify-between border-b border-emerald-500/10 pb-2">
                       <div className="flex items-center gap-2 text-xs font-semibold text-emerald-400 font-mono">
                         <span>✓</span> Bull Case & Growth Catalysts
                       </div>
-                      <ul className="space-y-1.5 text-xs text-text-muted">
-                        {opportunities.map((opp, i) => (
-                          <li key={i} className="flex items-start gap-2">
-                            <span className="text-emerald-400 text-[10px] mt-0.5">•</span>
-                            <span className="leading-snug">{opp}</span>
-                          </li>
-                        ))}
-                      </ul>
+                      <span className="font-mono text-[10px] text-emerald-400/80">OPPORTUNITIES</span>
                     </div>
-                  )}
+                    <ul className="space-y-2 text-xs text-text-muted">
+                      {opportunities.map((opp, i) => (
+                        <li key={i} className="flex items-start gap-2">
+                          <span className="text-emerald-400 text-[10px] mt-0.5">•</span>
+                          <span className="leading-snug text-text">{opp}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
 
-                  {risks.length > 0 && (
-                    <div className="rounded-xl border border-rose-500/20 bg-gradient-to-b from-[#1c0f17] to-[#140b11] p-4 space-y-2">
+                {risks.length > 0 && (
+                  <div className="rounded-xl border border-rose-500/20 bg-gradient-to-b from-[#1c0f17] to-[#140b11] p-4.5 space-y-2.5 shadow-md">
+                    <div className="flex items-center justify-between border-b border-rose-500/10 pb-2">
                       <div className="flex items-center gap-2 text-xs font-semibold text-rose-400 font-mono">
                         <span>!</span> Bear Case & Downside Risks
                       </div>
-                      <ul className="space-y-1.5 text-xs text-text-muted">
-                        {risks.map((risk, i) => (
-                          <li key={i} className="flex items-start gap-2">
-                            <span className="text-rose-400 text-[10px] mt-0.5">•</span>
-                            <span className="leading-snug">{risk}</span>
-                          </li>
-                        ))}
-                      </ul>
+                      {turn.risks && (
+                        <span className="font-mono text-[10px] text-rose-400/80">
+                          {turn.risks.risk_score}/10 {turn.risks.risk_level}
+                        </span>
+                      )}
                     </div>
-                  )}
-                </div>
-              </div>
-            )}
-
-            {/* STAGE 4: CONSENSUS VERDICT & MODEL CONVICTION DECISION */}
-            {turn.thesis && (
-              <div className="rounded-xl border border-[#1e2e46] bg-[#091220] p-4.5 space-y-4 shadow-xl">
-                <div className="flex items-center justify-between border-b border-[#162338] pb-2.5">
-                  <div className="flex items-center gap-2 font-mono text-xs">
-                    <span className="flex h-5 w-5 items-center justify-center rounded-md bg-emerald-500/20 text-emerald-400 font-bold border border-emerald-500/40 text-[11px]">
-                      4
-                    </span>
-                    <span className="font-bold uppercase tracking-wider text-white">
-                      Stage 4: Consensus Verdict & Model Conviction Decision
-                    </span>
-                  </div>
-                  <span className="rounded-full border border-emerald-500/40 bg-emerald-500/10 px-2.5 py-0.5 font-mono text-[10px] font-semibold text-emerald-300">
-                    Final Consensus Verdict
-                  </span>
-                </div>
-
-                {/* Stage 4 Query */}
-                <div className="rounded-lg border border-[#162438] bg-[#050b14] px-3.5 py-2 font-mono text-xs text-text-muted flex items-center gap-2">
-                  <span className="text-emerald-400 font-bold">Query:</span>
-                  <span className="text-white italic">&ldquo;Synthesize multi-agent consensus, final verdict, and model conviction for {companySymbol?.toUpperCase() || "the equity"}&rdquo;</span>
-                </div>
-
-                {/* Bold Executive Verdict Hero Card */}
-                <div className={`relative overflow-hidden rounded-2xl border p-5 sm:p-6 shadow-2xl transition-all ${verdictContainerStyle}`}>
-                  {/* Radial glow background */}
-                  <div 
-                    className="pointer-events-none absolute -right-12 -top-12 h-48 w-48 rounded-full blur-3xl opacity-30" 
-                    style={{ background: verdictGlowColor }} 
-                  />
-
-                  <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-                    {/* Left: Prominent Verdict Announcement */}
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-2 font-mono text-[11px] font-bold uppercase tracking-[0.2em] text-[#94a3b8]">
-                        <span>🏛️ Consensus Institutional Verdict</span>
-                        <span className="h-1 w-1 rounded-full bg-[#475569]" />
-                        <span className="text-emerald-400 font-semibold">{companySymbol?.toUpperCase() || "TARGET EQUITY"}</span>
-                      </div>
-
-                      <div className="flex items-center gap-4">
-                        {/* Big Bold Pill */}
-                        <div className={`inline-flex items-center gap-2.5 rounded-2xl border-2 px-5 py-2.5 text-2xl sm:text-3xl font-black font-mono tracking-wider shadow-2xl ${verdictBadgeStyle}`}>
-                          <span className="text-xl sm:text-2xl">{verdictIcon}</span>
-                          <span>{recommendation}</span>
-                        </div>
-
-                        <div className="flex flex-col">
-                          <span className="text-xs sm:text-[13px] font-mono font-bold tracking-wide uppercase text-white">
-                            {verdictSubtitle}
-                          </span>
-                          <span className="text-[11px] text-text-muted">
-                            Synthesized across Fundamental, Risk & Adversarial Desks
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Right: Bold High-Contrast Confidence Score & Meter */}
-                    <div className="flex flex-col sm:flex-row sm:items-center gap-6 md:border-l md:border-white/10 md:pl-6">
-                      {/* Score Display */}
-                      <div className="space-y-1">
-                        <div className="text-[10px] font-mono uppercase tracking-[0.16em] text-text-faint">
-                          Model Conviction
-                        </div>
-                        <div className="flex items-baseline gap-1.5 font-mono">
-                          <span className="text-3xl sm:text-4xl font-black text-white tracking-tight drop-shadow-md">
-                            {confidenceNum != null ? confidenceNum.toFixed(1) : (turn.thesis ? "8.0" : "—")}
-                          </span>
-                          <span className="text-lg font-bold text-text-muted">/ 10</span>
-                        </div>
-                        <div className="text-[11px] font-mono font-semibold" style={{ color: confidenceColor }}>
-                          {convictionLabel}
-                        </div>
-                      </div>
-
-                      {/* Visual Confidence Bar Meter */}
-                      <div className="w-36 sm:w-40 space-y-1.5 font-mono text-[10px]">
-                        <div className="flex justify-between text-text-faint">
-                          <span>Conviction</span>
-                          <span className="font-bold text-white">{confidencePercent}%</span>
-                        </div>
-                        <div className="h-3 w-full overflow-hidden rounded-full bg-[#070e1a] border border-white/10 p-0.5 shadow-inner">
-                          <div 
-                            className={`h-full rounded-full transition-all duration-700 shadow-sm ${confidenceBarStyle}`}
-                            style={{ width: `${confidencePercent}%` }}
-                          />
-                        </div>
-                        {turn.risks && (
-                          <div className="flex justify-between text-[10px] text-text-faint pt-0.5">
-                            <span>Downside Risk:</span>
-                            <span className="text-amber-400 font-semibold">{turn.risks.risk_score}/10 ({turn.risks.risk_level})</span>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Investment Thesis Narrative */}
-                {thesisNarrative && (
-                  <div className="space-y-1.5 pt-1">
-                    <h4 className="text-xs font-mono font-semibold uppercase tracking-wider text-text-muted">
-                      Consensus Investment Thesis
-                    </h4>
-                    <p className="text-xs sm:text-[13px] leading-relaxed text-text">
-                      {thesisNarrative}
-                    </p>
+                    <ul className="space-y-2 text-xs text-text-muted">
+                      {risks.map((risk, i) => (
+                        <li key={i} className="flex items-start gap-2">
+                          <span className="text-rose-400 text-[10px] mt-0.5">•</span>
+                          <span className="leading-snug text-text">{risk}</span>
+                        </li>
+                      ))}
+                    </ul>
                   </div>
                 )}
               </div>
             )}
 
-            {/* Disclaimer */}
+            {/* 7D. Citations & Verified Data Sources */}
+            <div className="rounded-xl border border-[#19273c] bg-[#070e1a] p-4 space-y-3.5">
+              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#152030] pb-2.5">
+                <div className="flex items-center gap-2 font-mono text-xs font-bold uppercase tracking-wider text-white">
+                  <span>📑</span>
+                  <span>Verified Sources & Live Citations</span>
+                </div>
+                <span className="font-mono text-[10px] text-emerald-400">
+                  SEC EDGAR + Yahoo Finance Real-Time
+                </span>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs font-mono">
+                <div className="rounded-lg border border-[#162234] bg-[#0a1220] p-3 space-y-1">
+                  <div className="flex items-center gap-1.5 text-emerald-400 font-semibold text-[11px]">
+                    <span>📈</span> Yahoo Finance Real-Time API
+                  </div>
+                  <p className="text-[10.5px] text-text-muted leading-relaxed font-sans">
+                    Market price quotes, volume, 52-week pricing bounds, and valuation multiples.
+                  </p>
+                </div>
+
+                <div className="rounded-lg border border-[#162234] bg-[#0a1220] p-3 space-y-1">
+                  <div className="flex items-center gap-1.5 text-cyan-400 font-semibold text-[11px]">
+                    <span>🏛️</span> SEC EDGAR Disclosures
+                  </div>
+                  <p className="text-[10.5px] text-text-muted leading-relaxed font-sans">
+                    Audited Form 10-K (Annual) and 10-Q (Quarterly) balance sheet & regulatory filings.
+                  </p>
+                </div>
+              </div>
+
+              {/* News Articles Citations */}
+              {newsCitations.length > 0 && (
+                <div className="space-y-1.5 pt-1">
+                  <div className="text-[10px] font-mono uppercase tracking-wider text-text-faint">
+                    Headline Citations ({newsCitations.length})
+                  </div>
+                  <div className="space-y-1.5">
+                    {newsCitations.slice(0, 3).map((art, idx) => (
+                      <div
+                        key={idx}
+                        className="flex items-start justify-between gap-2 rounded-lg border border-[#152030] bg-[#0a111e] p-2.5 text-xs hover:border-[#1e304b] transition-colors"
+                      >
+                        <div className="min-w-0 flex-1">
+                          {art.url ? (
+                            <a
+                              href={art.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="font-medium text-white hover:text-emerald-400 transition-colors line-clamp-1 text-[11.5px]"
+                            >
+                              {art.title}
+                            </a>
+                          ) : (
+                            <span className="font-medium text-white line-clamp-1 text-[11.5px]">{art.title}</span>
+                          )}
+                          <div className="flex items-center gap-2 text-[9px] font-mono text-text-faint mt-1">
+                            <span className="text-emerald-400 font-semibold">{art.source}</span>
+                            {art.published_at && (
+                              <>
+                                <span>•</span>
+                                <span>{timeAgo(art.published_at) || art.published_at}</span>
+                              </>
+                            )}
+                          </div>
+                        </div>
+                        {art.url && (
+                          <a
+                            href={art.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="shrink-0 text-xs font-mono text-emerald-400 hover:text-emerald-300"
+                          >
+                            ↗
+                          </a>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Raw Data Toggle */}
+              {toolOutputs.length > 0 && (
+                <div className="pt-2 border-t border-[#152030]">
+                  <button
+                    onClick={() => setShowAllSources(!showAllSources)}
+                    className="text-[11px] font-mono text-emerald-400 hover:text-emerald-300 transition-colors cursor-pointer"
+                  >
+                    {showAllSources ? "Hide Raw Tool JSON ↑" : "Inspect Raw Tool Payloads & Telemetry →"}
+                  </button>
+
+                  {showAllSources && (
+                    <div className="mt-2.5 rounded-xl border border-[#162234] bg-[#040810] p-3 text-[10px] font-mono space-y-2 max-h-48 overflow-y-auto">
+                      {toolOutputs.map((step, idx) => (
+                        <div key={idx} className="border-t border-[#121b2b] first:border-0 pt-1.5">
+                          <span className="text-amber-400 font-bold">{step.tool}</span>
+                          <pre className="mt-1 text-text-faint whitespace-pre-wrap overflow-x-auto text-[9.5px]">
+                            {typeof step.output === "object" ? JSON.stringify(step.output, null, 2) : String(step.output)}
+                          </pre>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Institutional Disclaimer */}
             <div className="text-[10px] text-text-faint font-mono border-t border-[#141d2c] pt-2">
-              * Note: Market data and news are retrieved live. RizqAI analysis is for institutional research purposes and does not constitute registered financial advisory.
+              * Note: Market data and news are retrieved live. RizqAI analysis is synthesized by an autonomous multi-agent pipeline for institutional research purposes and does not constitute registered financial advisory.
             </div>
           </div>
         )}
 
       </div>
-
-      {/* 5. Next Stage of Operation in Order (Below Results, No Multiple Choice) */}
-      {!isStreaming && (
-        <div className="rounded-2xl border border-[#1e2e46] bg-gradient-to-b from-[#0a1424] to-[#060d18] p-5 space-y-3.5 shadow-xl">
-          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#162338] pb-3">
-            <div className="flex items-center gap-2.5">
-              <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-emerald-500/15 text-emerald-400 font-mono text-xs font-bold border border-emerald-500/30">
-                {turnIndex + 2}
-              </span>
-              <div>
-                <span className="font-mono text-xs font-bold uppercase tracking-[0.16em] text-white">
-                  Next Stage in Order (Stage {turnIndex + 2})
-                </span>
-                <p className="text-[11px] text-text-muted">
-                  Sequential research operation ready to execute in order
-                </p>
-              </div>
-            </div>
-
-            <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-0.5 font-mono text-[10px] font-semibold text-emerald-300">
-              In Order Execution
-            </span>
-          </div>
-
-          {/* Single Sequential Operation Card */}
-          <div className="rounded-xl border border-emerald-500/30 bg-[#071322] p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-md">
-            <div className="space-y-1 min-w-0 flex-1">
-              <div className="flex items-center gap-2 font-mono text-xs font-bold text-emerald-300">
-                <span>▶</span>
-                <span>{nextStage.title}</span>
-              </div>
-              <p className="text-xs text-text-muted font-mono leading-relaxed truncate sm:whitespace-normal">
-                &ldquo;{inlineNextQuery.trim() || nextStage.query}&rdquo;
-              </p>
-            </div>
-
-            <button
-              type="button"
-              onClick={() => onExecuteNextStage?.(inlineNextQuery.trim() || nextStage.query)}
-              className="shrink-0 flex items-center justify-center gap-2 rounded-xl bg-emerald-400 hover:bg-emerald-300 active:scale-95 px-5 py-3 font-mono text-xs font-bold text-[#070c14] transition-all shadow-lg shadow-emerald-500/25 cursor-pointer"
-            >
-              <span>RUN STAGE {turnIndex + 2} IN ORDER</span>
-              <span>→</span>
-            </button>
-          </div>
-
-          {/* Optional inline prompt to customize before running in order */}
-          <div className="pt-1 flex items-center gap-2">
-            <input
-              type="text"
-              value={inlineNextQuery}
-              onChange={(e) => setInlineNextQuery(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  e.preventDefault();
-                  onExecuteNextStage?.(inlineNextQuery.trim() || nextStage.query);
-                  setInlineNextQuery("");
-                }
-              }}
-              placeholder={`Customize Stage ${turnIndex + 2} query or press Run above…`}
-              className="flex-1 rounded-xl border border-[#18273e] bg-[#050b14] px-3.5 py-2 text-xs text-white placeholder-text-faint focus:border-emerald-500/50 focus:outline-none"
-            />
-            {inlineNextQuery.trim() && (
-              <button
-                type="button"
-                onClick={() => {
-                  onExecuteNextStage?.(inlineNextQuery.trim());
-                  setInlineNextQuery("");
-                }}
-                className="shrink-0 rounded-xl bg-emerald-500 hover:bg-emerald-400 px-3.5 py-2 font-mono text-xs font-bold text-black"
-              >
-                RUN CUSTOM →
-              </button>
-            )}
-          </div>
-        </div>
-      )}
     </div>
   );
 }
