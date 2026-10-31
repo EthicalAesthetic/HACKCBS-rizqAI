@@ -5,6 +5,12 @@ export type { StreamEvent } from "./types";
 export const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") || "http://localhost:8000";
 
+export const SUPABASE_URL =
+  process.env.NEXT_PUBLIC_SUPABASE_URL || "";
+
+export const SUPABASE_ANON_KEY =
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
+
 const ANALYSIS_URL = `${API_BASE_URL}/analysis`;
 const AUTH_URL = `${API_BASE_URL}/auth`;
 
@@ -167,14 +173,6 @@ export async function exchangeOAuthCode(
   return asJson<SessionResponse>(res, "OAuth authentication failed.");
 }
 
-export async function exchangeOAuthToken(accessToken: string): Promise<SessionResponse> {
-  const res = await fetch(
-    `${AUTH_URL}/callback?access_token=${encodeURIComponent(accessToken)}`,
-    { cache: "no-store" }
-  );
-  return asJson<SessionResponse>(res, "OAuth authentication failed.");
-}
-
 export async function getCurrentUser(accessToken: string): Promise<CurrentUserResponse> {
   const res = await fetch(`${AUTH_URL}/me`, {
     headers: { Authorization: `Bearer ${accessToken}` },
@@ -183,22 +181,50 @@ export async function getCurrentUser(accessToken: string): Promise<CurrentUserRe
   return asJson<CurrentUserResponse>(res, "Unable to validate OAuth session.");
 }
 
+// ---------------------------------------------------------------------------
+// PKCE OAuth helpers (browser-side flow)
+// ---------------------------------------------------------------------------
+
+/**
+ * Initiates a Supabase PKCE OAuth flow directly from the browser.
+ *
+ * Why not call the backend for the URL?
+ * Supabase uses PKCE: it generates a code_verifier, stores it in
+ * sessionStorage, and includes the code_challenge in the authorization URL.
+ * When the OAuth code comes back, Supabase needs the verifier to exchange the
+ * code.  The Python backend has no sessionStorage, so the verifier is lost
+ * and the exchange fails with 401.  By building the URL in the browser we
+ * keep the verifier in sessionStorage and pass it to the backend at callback
+ * time.
+ */
 export async function initiateOAuthFlow(
   provider: "google" | "github"
 ): Promise<void> {
+  if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+    throw new Error("Supabase is not configured. Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY.");
+  }
+
   const codeVerifier = _generateCodeVerifier();
   const codeChallenge = await _generateCodeChallenge(codeVerifier);
+
+  // Persist so the callback page can retrieve it
   sessionStorage.setItem("rizqai_oauth_code_verifier", codeVerifier);
+  sessionStorage.setItem("rizqai_oauth_provider", provider);
+
+  // Build the Supabase authorization URL with PKCE
+  const redirectTo =
+    typeof window !== "undefined"
+      ? `${window.location.origin}/auth/callback`
+      : "http://localhost:3000/auth/callback";
 
   const params = new URLSearchParams({
+    provider,
+    redirect_to: redirectTo,
     code_challenge: codeChallenge,
     code_challenge_method: "s256",
   });
-  const res = await fetch(`${AUTH_URL}/oauth/${provider}?${params}`, {
-    cache: "no-store",
-  });
-  const data = await asJson<{ url: string }>(res, "Unable to start OAuth sign-in.");
-  window.location.assign(data.url);
+
+  window.location.href = `${SUPABASE_URL}/auth/v1/authorize?${params.toString()}`;
 }
 
 function _generateCodeVerifier(): string {

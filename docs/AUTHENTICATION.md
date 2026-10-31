@@ -46,11 +46,11 @@ Copy `backend/.env.example` to `backend/.env` and set:
 Email/password signup and login use the application `users` table. Passwords
 are stored only as salted PBKDF2 hashes. Access tokens are signed JWTs and
 refresh-token hashes plus revocation state are stored in `auth_sessions`.
-The frontend starts OAuth through the backend's `/auth/oauth/{provider}`
-endpoint, passing a browser-generated PKCE challenge. The callback sends the
-one-time code and matching verifier to the backend, which exchanges them with
-Supabase before creating the local session. An implicit-flow access token in the
-callback URL hash is also accepted for compatibility.
+The backend starts OAuth in implicit mode and the frontend callback accepts the
+short-lived Supabase access token returned in the callback URL hash. A
+code-based callback remains supported for deployments configured for PKCE. The
+backend validates the resulting token with Supabase before creating the local
+session.
 
 ## API
 
@@ -69,9 +69,7 @@ The server does not log them. Send the access token as:
 - `POST /auth/logout` with a bearer token; all sessions for that user are
   revoked using the service role API.
 - `GET /auth/oauth/google` or `/auth/oauth/github`; open the returned URL.
-- `GET /auth/callback?code=...&code_verifier=...`; exchanges a one-time PKCE
-  OAuth code, or `GET /auth/callback?access_token=...` for an implicit-flow
-  token.
+- `GET /auth/callback?code=...`; exchanges a one-time OAuth code.
 - `POST /auth/password/recover` with `{ "email" }`. The response is deliberately
   identical whether the email exists.
 - `POST /auth/password/update` with a bearer token from the Supabase recovery
