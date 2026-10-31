@@ -4,7 +4,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 
 
-BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR = Path(__file__).resolve().parent
 # Allow `backend/.env` for deployments that package the backend separately.
 load_dotenv(BASE_DIR / "backend" / ".env", override=False)
 # The repository root is canonical for local development. Loading with
