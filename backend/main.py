@@ -13,7 +13,11 @@ from graph.graph import graph_builder
 
 load_dotenv(override=True)
 
-CHECKPOINT_DB_PATH = "/tmp/rizqai_checkpoints.db"
+CHECKPOINT_DB_PATH = (
+    ":memory:"
+    if os.getenv("VERCEL")
+    else os.getenv("CHECKPOINT_DB_PATH", "rizqai_checkpoints.db")
+)
 
 
 @asynccontextmanager
