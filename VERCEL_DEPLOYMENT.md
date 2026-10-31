@@ -44,7 +44,7 @@ On Vercel, the recommended and most reliable setup is deploying both as linked p
    - You can verify it by opening `https://rizqai-backend.vercel.app/health` — it will return `{"status": "healthy"}`.
 
 > [!NOTE]
-> Vercel has pre-configured functions with `maxDuration: 60` and `memory: 1024` in [`backend/vercel.json`](file:///home/hex/Projects/HACKCBS-rizqAI/backend/vercel.json) to support streaming multi-agent synthesis.
+> Vercel has pre-configured functions with `maxDuration: 60` and `memory: 1024` in [`backend/vercel.json`](backend/vercel.json) to support streaming multi-agent synthesis.
 
 ---
 
@@ -86,4 +86,4 @@ In your Supabase Dashboard:
   - Complex multi-company comparative queries (`"Compare NVDA vs AMD"`) querying 9 financial tools can take 15–25 seconds.
   - If you encounter a `504 FUNCTION_INVOCATION_TIMEOUT` on Vercel Free tier:
     - Upgrade your Vercel project to **Pro** (which supports up to 300s durations).
-    - **OR** deploy the backend container on [Render](https://render.com) / [Railway](https://railway.app) / [Fly.io](https://fly.io) using the included [`backend/dockerfile`](file:///home/hex/Projects/HACKCBS-rizqAI/backend/dockerfile), and keep the Next.js frontend on Vercel.
+    - **OR** deploy the backend container on [Render](https://render.com) / [Railway](https://railway.app) / [Fly.io](https://fly.io) using the included [`backend/dockerfile`](backend/dockerfile), and keep the Next.js frontend on Vercel.
