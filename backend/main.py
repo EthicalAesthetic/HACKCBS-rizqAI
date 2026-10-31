@@ -19,7 +19,7 @@ load_dotenv(Path(__file__).resolve().parent / ".env", override=True)
 load_dotenv(override=True)
 
 CHECKPOINT_DB_PATH = (
-    ":memory:"
+    "/tmp/rizqai_checkpoints.db"
     if os.getenv("VERCEL")
     else os.getenv("CHECKPOINT_DB_PATH", "rizqai_checkpoints.db")
 )
@@ -65,10 +65,22 @@ allow_origins = [
 app.add_middleware(
     CORSMiddleware,
     allow_origins=allow_origins,
+    allow_origin_regex=r"https://.*\.vercel\.app",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+@app.get("/")
+async def root():
+    return {"status": "ok", "service": "RizqAI API", "version": "0.1.0"}
+
+
+@app.get("/health")
+async def health():
+    return {"status": "healthy"}
+
 
 app.include_router(analysis_router)
 app.include_router(conversations_router)
