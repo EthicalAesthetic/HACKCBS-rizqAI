@@ -3,7 +3,7 @@
 import React, { createContext, useCallback, useContext, useEffect, useState } from "react";
 import {
   loginUser,
-  signupUser,
+  requestSignupOtp,
   logoutUser,
   getStoredToken,
   getStoredRefreshToken,
@@ -177,13 +177,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const signup = async (email: string, password: string) => {
-    const res = await signupUser(email, password);
-    if ("access_token" in res && res.access_token) {
-      establishSession(res);
-      setIsAuthModalOpen(false);
-    } else {
-      return (res as { message?: string }).message || "Signup successful! Check email to confirm.";
-    }
+    const res = await requestSignupOtp(email, password);
+    // OTP-based signup: always returns a message asking the user to enter the OTP
+    return res.message || "Check your backend terminal for the OTP code.";
   };
 
   const signupWithOtp = useCallback(async (email: string, password: string, otp: string, name: string) => {
