@@ -160,7 +160,7 @@ export default function WorkspaceCard({ turn }: WorkspaceCardProps) {
         id: "e-thesis",
         node: "thesis_agent",
         timestamp: baseTime + 36000,
-        summary: `${turn.thesis.recommendation} · ${turn.thesis.confidence}/10 confidence consensus issued`,
+        summary: `${turn.thesis.recommendation} · Consensus investment thesis issued`,
         success: true,
       });
     }
@@ -199,7 +199,7 @@ export default function WorkspaceCard({ turn }: WorkspaceCardProps) {
     } else if (!turn.debate && turn.risks) {
       activeWorkingCopy = { label: "DEBATE", text: "Bull and bear desks are formulating adversarial arguments…" };
     } else if (!turn.thesis && turn.debate) {
-      activeWorkingCopy = { label: "VERDICT", text: "Thesis desk is issuing final recommendation and confidence rating…" };
+      activeWorkingCopy = { label: "VERDICT", text: "Thesis desk is issuing final recommendation and investment thesis…" };
     } else if (turn.guardrail.category === "general_finance" && !turn.generalFinance) {
       activeWorkingCopy = { label: "ANSWER", text: "Consulting quantitative finance knowledge base and memory…" };
     } else {
@@ -532,15 +532,6 @@ export default function WorkspaceCard({ turn }: WorkspaceCardProps) {
                   </div>
                 </div>
 
-                {/* Right: Downside Risk Badge (clean, no conviction score) */}
-                {turn.risks && (
-                  <div className="shrink-0 rounded-xl border border-white/10 bg-[#060c16]/80 backdrop-blur-sm px-4 py-3 font-mono space-y-1">
-                    <div className="text-[10px] text-text-faint uppercase tracking-wider">Downside Risk</div>
-                    <div className="text-sm font-bold text-amber-400">
-                      {turn.risks.risk_score}/10 · {turn.risks.risk_level}
-                    </div>
-                  </div>
-                )}
               </div>
 
               {/* Investment Thesis Narrative */}

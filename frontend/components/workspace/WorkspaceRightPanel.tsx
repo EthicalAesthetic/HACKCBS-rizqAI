@@ -275,9 +275,11 @@ export default function WorkspaceRightPanel({
                       {activeTurn.thesis.recommendation}
                     </span>
                   </div>
-                  <div className="text-[11px] text-text-faint font-mono">
-                    Confidence: {activeTurn.thesis.confidence}/10
-                  </div>
+                  {activeTurn.thesis.key_reasons?.[0] && (
+                    <div className="text-[11px] text-text-muted font-sans leading-relaxed pt-1 border-t border-white/5">
+                      {activeTurn.thesis.key_reasons[0]}
+                    </div>
+                  )}
                 </div>
 
                 {activeTurn.debate && (

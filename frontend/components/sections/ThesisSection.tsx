@@ -15,21 +15,6 @@ export default function ThesisSection({ thesis }: { thesis: ThesisAgentState }) 
         <span className={`verdict-stamp ${STAMP_COLOR[thesis.recommendation]}`}>
           {thesis.recommendation}
         </span>
-        <div className="flex items-center gap-2">
-          <div className="flex gap-0.5">
-            {Array.from({ length: 10 }).map((_, i) => (
-              <span
-                key={i}
-                className={`h-3 w-1 rounded-full ${
-                  i < thesis.confidence ? "bg-gold" : "bg-line-soft"
-                }`}
-              />
-            ))}
-          </div>
-          <span className="font-mono text-xs text-text-faint">
-            {thesis.confidence}/10 confidence
-          </span>
-        </div>
       </div>
 
       <div className="font-display text-lg italic leading-relaxed text-text">
