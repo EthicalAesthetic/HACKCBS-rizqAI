@@ -6,7 +6,7 @@ backend never stores passwords, reset tokens, access tokens, or refresh tokens.
 
 ## Environment
 
-Copy the root `.env.example` to `.env` and set:
+Copy `backend/.env.example` to `backend/.env` and set:
 
 - `DATABASE_URL`: Supabase PostgreSQL connection string. Use the pooler URL for
   deployed/serverless workloads when appropriate.

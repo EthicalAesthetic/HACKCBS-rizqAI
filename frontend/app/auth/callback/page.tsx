@@ -2,10 +2,11 @@
 
 import { useEffect, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 import { API_BASE_URL } from "@/lib/api";
 import { useAuth } from "@/lib/authContext";
 
-export default function AuthCallbackPage() {
+function AuthCallbackContent() {
   const router = useRouter();
   const params = useSearchParams();
   const { establishSession } = useAuth();
@@ -53,5 +54,13 @@ export default function AuthCallbackPage() {
         <p className="text-sm text-text-muted">Completing sign in…</p>
       </div>
     </div>
+  );
+}
+
+export default function AuthCallbackPage() {
+  return (
+    <Suspense fallback={<div className="flex h-screen items-center justify-center bg-[#060b11]" />}>
+      <AuthCallbackContent />
+    </Suspense>
   );
 }

@@ -187,10 +187,10 @@ cd RizqAI
 
 ### 2. Configure Environment Variables
 
-Create a root `.env` file by copying the provided example template:
+Create `backend/.env` by copying the provided example template:
 
 ```bash
-cp .env.example .env
+cp backend/.env.example backend/.env
 ```
 
 Populate the `.env` file with your credentials:
@@ -430,7 +430,7 @@ RizqAI is an automated research assistant for informational and educational purp
 
 ```
 RizqAI/
-├── .env.example                 # Environment configuration template
+├── backend/.env.example         # Environment configuration template
 ├── docker-compose.yml           # Multi-container orchestration (FastAPI + Next.js)
 ├── LICENSE                      # MIT Open Source License
 ├── README.md                    # Project documentation
