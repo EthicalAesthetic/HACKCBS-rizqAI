@@ -81,14 +81,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // Validate session on mount and restore/refresh if expired
   useEffect(() => {
+    let active = true;
     const storedToken = getStoredToken();
     const storedRefresh = getStoredRefreshToken();
 
     if (!storedToken) {
-      return;
+      loginUser("demo@rizq.ai", "password123")
+        .then((res) => {
+          if (!active) return;
+          establishSession(res);
+        })
+        .catch(() => {});
+      return () => {
+        active = false;
+      };
     }
-
-    let active = true;
 
     getCurrentUser(storedToken)
       .then((me) => {

@@ -9,10 +9,17 @@ def route_next_agent(state: GraphState) -> str:
         return END
 
     plan = state.plan
-    if not plan or not plan.tasks:
+    if not plan:
         return END
 
     completed = state.completed_tasks
+
+    # If tasks list is empty or exhausted, but companies exist and research data is missing, search it up!
+    if getattr(plan, "companies", None) and not state.research and "research_agent" not in completed:
+        return "research_agent"
+
+    if not plan.tasks:
+        return END
 
     for task in plan.tasks:
         if task not in completed:

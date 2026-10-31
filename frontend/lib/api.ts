@@ -187,6 +187,19 @@ export async function checkHealth(): Promise<boolean> {
   }
 }
 
+/** POST /conversations — create a new conversation thread */
+export async function createConversation(title?: string): Promise<ConversationListItem> {
+  const res = await fetch(CONVERSATIONS_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      ...getAuthHeaders(),
+    },
+    body: JSON.stringify({ title: title || "New Analysis" }),
+  });
+  return asJson(res, "Failed to create conversation.");
+}
+
 /** GET /conversations — most-recently-updated first */
 export async function listConversations(): Promise<ConversationListItem[]> {
   const res = await fetch(CONVERSATIONS_URL, {

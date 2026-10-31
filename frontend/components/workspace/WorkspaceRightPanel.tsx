@@ -94,9 +94,16 @@ export default function WorkspaceRightPanel({
             <span className="text-xs font-mono font-medium text-text-muted">Live Intelligence Desk</span>
           </div>
 
-          <span className="font-mono text-[10px] text-text-faint">
-            {activeTurn ? "Active Turn" : "Standby"}
-          </span>
+          {activeTurn?.status === "streaming" ? (
+            <span className="flex items-center gap-1.5 rounded-full border border-amber-500/40 bg-amber-500/10 px-2 py-0.5 font-mono text-[10px] font-semibold text-amber-300">
+              <span className="h-1.5 w-1.5 rounded-full bg-amber-400 animate-pulse" />
+              GENERATING OUTPUT…
+            </span>
+          ) : (
+            <span className="font-mono text-[10px] text-text-faint">
+              {activeTurn ? "Active Turn" : "Standby"}
+            </span>
+          )}
         </div>
 
         {/* Tab Navigation Filter: News / Financials / Analysis */}
@@ -138,6 +145,22 @@ export default function WorkspaceRightPanel({
             {description}
           </p>
         </div>
+
+        {/* Live Intelligence Streaming Alert */}
+        {activeTurn?.status === "streaming" && !activeTurn.research && (
+          <div className="rounded-xl border border-amber-500/25 bg-amber-500/5 p-3 font-mono text-xs space-y-1.5">
+            <div className="flex items-center justify-between text-amber-300 font-semibold text-[11px]">
+              <span className="flex items-center gap-1.5">
+                <span className="h-2 w-2 rounded-full bg-amber-400 animate-ping" />
+                LIVE INTELLIGENCE STREAMING
+              </span>
+              <span className="animate-pulse">● ● ●</span>
+            </div>
+            <p className="text-[11px] text-text-muted leading-relaxed font-sans">
+              Multi-agent desk is gathering real-time prices, news citations, and SEC fundamentals…
+            </p>
+          </div>
+        )}
 
         {/* Tab 1: Financials Filter */}
         {activeTab === "Financials" && (

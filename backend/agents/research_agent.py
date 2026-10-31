@@ -55,7 +55,13 @@ async def research_agent(state: GraphState) -> GraphState:
 
         prompt = ChatPromptTemplate.from_messages([
             ("system", RESEARCH_PROMPT),
-            ("human", "Please research the following companies: {companies}"),
+            (
+                "human",
+                "User query: {user_query}\n"
+                "Please research the following companies: {companies}.\n"
+                "If any required data, price, fundamentals, or news is not already in memory, "
+                "call the appropriate tools to search it up. Do not stop with missing data."
+            ),
             MessagesPlaceholder(variable_name="agent_scratchpad"),
         ])
 
@@ -69,7 +75,10 @@ async def research_agent(state: GraphState) -> GraphState:
             return_intermediate_steps=True
         )
 
-        result = await agent_executor.ainvoke({"companies": companies})
+        result = await agent_executor.ainvoke({
+            "companies": companies,
+            "user_query": getattr(state, "user_query", "") or "General company equity analysis",
+        })
 
         tool_outputs : List[ToolOutputDict] = []
         for action, observation in result.get("intermediate_steps", []):

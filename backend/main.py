@@ -7,10 +7,15 @@ from langgraph.checkpoint.sqlite.aio import AsyncSqliteSaver
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from api.routes import router
+from api.routes import router as analysis_router
+from api.conversation_routes import router as conversations_router
 from api.auth_routes import router as auth_router
 from graph.graph import graph_builder
+from database.db import init_db
 
+from pathlib import Path
+
+load_dotenv(Path(__file__).resolve().parent / ".env", override=True)
 load_dotenv(override=True)
 
 CHECKPOINT_DB_PATH = (
@@ -22,6 +27,11 @@ CHECKPOINT_DB_PATH = (
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    try:
+        init_db()
+    except Exception as exc:
+        print(f"Database init notice: {exc}")
+
     async with AsyncSqliteSaver.from_conn_string(
         CHECKPOINT_DB_PATH
     ) as checkpointer:
@@ -43,7 +53,7 @@ app = FastAPI(
 
 _frontend_origins = os.getenv(
     "FRONTEND_ORIGIN",
-    "http://localhost:3000",
+    "http://localhost:3000,http://127.0.0.1:3000,http://localhost:3001",
 )
 
 allow_origins = [
@@ -60,5 +70,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(router)
+app.include_router(analysis_router)
+app.include_router(conversations_router)
 app.include_router(auth_router)

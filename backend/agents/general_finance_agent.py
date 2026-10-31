@@ -15,11 +15,16 @@ async def general_finance_agent(state: GraphState) -> GraphState:
 
     try:
         structured_llm = general_finance_llm.with_structured_output(GeneralFinanceAnswer)
+        history_messages = getattr(state, "messages", None) or []
+        history_str = "\n".join([f"{getattr(m, 'type', 'msg')}: {getattr(m, 'content', str(m))}" for m in history_messages])
         prompt = ChatPromptTemplate.from_messages([
             ("system", GENERAL_FINANCE_PROMPT),
             ("human", "{user_query}"),
         ])
-        messages = await prompt.ainvoke({"user_query": state.user_query})
+        messages = await prompt.ainvoke({
+            "user_query": state.user_query,
+            "messages": history_str or "No previous history.",
+        })
         answer = await structured_llm.ainvoke(messages)
 
     except Exception as e:

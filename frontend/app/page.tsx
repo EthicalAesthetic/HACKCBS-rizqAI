@@ -7,7 +7,7 @@ import TrustLogos from "@/components/landing/TrustLogos";
 import FeaturesSection from "@/components/landing/FeaturesSection";
 import HowItWorksSection from "@/components/landing/HowItWorksSection";
 import Footer from "@/components/landing/Footer";
-import AuthModal from "@/components/landing/AuthModal";
+import AuthModal from "@/components/landing/AuthDialog";
 
 export default function LandingPage() {
   return (
