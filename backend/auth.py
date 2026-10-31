@@ -7,6 +7,7 @@ from urllib.parse import urlparse
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from supabase import Client, create_client
+from supabase.lib.client_options import SyncClientOptions
 
 from settings import SUPABASE_ANON_KEY, SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY
 from jwt_auth import require_user as require_local_user
@@ -26,7 +27,11 @@ class AuthUser:
 def get_supabase_client() -> Client:
     if not _supabase_configured():
         raise RuntimeError("SUPABASE_URL and SUPABASE_ANON_KEY must be configured")
-    return create_client(SUPABASE_URL, SUPABASE_ANON_KEY)
+    return create_client(
+        SUPABASE_URL,
+        SUPABASE_ANON_KEY,
+        options=SyncClientOptions(flow_type="implicit"),
+    )
 
 
 def _user_from_response(response: Any, access_token: str) -> AuthUser:
@@ -95,7 +100,11 @@ def get_supabase_admin_client() -> Client:
         raise RuntimeError(
             "SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY must be configured"
         )
-    return create_client(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
+    return create_client(
+        SUPABASE_URL,
+        SUPABASE_SERVICE_ROLE_KEY,
+        options=SyncClientOptions(flow_type="implicit"),
+    )
 
 
 def _supabase_configured(require_admin: bool = False) -> bool:
