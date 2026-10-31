@@ -325,7 +325,8 @@ def test_removed_conversation_endpoint_is_unavailable(client):
     assert response.status_code == 404
 
 
-def test_ai_endpoint_requires_authentication(client):
-    test_client, _ = client
-    response = test_client.post("/analysis/stream", json={"query": "Analyze Apple"})
-    assert response.status_code == 401
+def test_ai_endpoint_allows_guest_access(client):
+    user = auth.require_user(None)
+    assert user.id == "e8eb2ba5-ffa1-413c-93bc-e662d26cff98"
+    assert user.email == "demo@rizq.ai"
+

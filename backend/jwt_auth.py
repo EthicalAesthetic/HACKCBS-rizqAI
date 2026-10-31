@@ -76,6 +76,14 @@ def _decode(token: str) -> dict[str, object]:
     return payload
 
 
+def verify_access_token(token: str) -> dict[str, object] | None:
+    try:
+        return _decode(token)
+    except Exception:
+        return None
+
+
+
 def issue_session(db: Session, user: UserAccount) -> dict[str, object]:
     now = datetime.now(timezone.utc)
     access_exp = now + _ACCESS_TTL

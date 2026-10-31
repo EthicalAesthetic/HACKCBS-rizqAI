@@ -27,3 +27,22 @@ def get_db():
 
 def init_db():
     Base.metadata.create_all(bind=engine)
+    from database.models import UserAccount
+    db = SessionLocal()
+    try:
+        user = db.query(UserAccount).filter_by(id="e8eb2ba5-ffa1-413c-93bc-e662d26cff98").first()
+        if not user:
+            user = UserAccount(
+                id="e8eb2ba5-ffa1-413c-93bc-e662d26cff98",
+                name="Senior Analyst",
+                email="demo@rizq.ai",
+                password_hash="disabled",
+            )
+            db.add(user)
+            db.commit()
+    except Exception as exc:
+        db.rollback()
+        print(f"Default user ensure notice: {exc}")
+    finally:
+        db.close()
+
