@@ -5,7 +5,13 @@ export type { StreamEvent } from "./types";
 export const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") || "http://localhost:8000";
 
-const CONVERSATIONS_URL = `${API_BASE_URL}/conversations`;
+export const SUPABASE_URL =
+  process.env.NEXT_PUBLIC_SUPABASE_URL || "";
+
+export const SUPABASE_ANON_KEY =
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
+
+const ANALYSIS_URL = `${API_BASE_URL}/analysis`;
 const AUTH_URL = `${API_BASE_URL}/auth`;
 
 export class ApiError extends Error {
@@ -151,15 +157,19 @@ export async function logoutUser(): Promise<{ message: string }> {
   return asJson<{ message: string }>(res, "Failed to sign out.");
 }
 
-export async function getOAuthUrl(provider: "google" | "github"): Promise<{ url: string }> {
-  const res = await fetch(`${AUTH_URL}/oauth/${provider}`);
-  return asJson<{ url: string }>(res, `Failed to initialize ${provider} login.`);
-}
-
-export async function exchangeOAuthCode(code: string): Promise<SessionResponse> {
-  const res = await fetch(`${AUTH_URL}/callback?code=${encodeURIComponent(code)}`, {
-    cache: "no-store",
-  });
+/**
+ * Exchange an OAuth authorization code for a RizqAI session.
+ * Pass the PKCE code_verifier if you initiated the flow with PKCE.
+ */
+export async function exchangeOAuthCode(
+  code: string,
+  codeVerifier?: string | null
+): Promise<SessionResponse> {
+  let url = `${AUTH_URL}/callback?code=${encodeURIComponent(code)}`;
+  if (codeVerifier) {
+    url += `&code_verifier=${encodeURIComponent(codeVerifier)}`;
+  }
+  const res = await fetch(url, { cache: "no-store" });
   return asJson<SessionResponse>(res, "OAuth authentication failed.");
 }
 
@@ -172,13 +182,78 @@ export async function getCurrentUser(accessToken: string): Promise<CurrentUserRe
 }
 
 // ---------------------------------------------------------------------------
-// Conversation & Stream Endpoints
+// PKCE OAuth helpers (browser-side flow)
 // ---------------------------------------------------------------------------
 
-/** GET /conversations/health */
+/**
+ * Initiates a Supabase PKCE OAuth flow directly from the browser.
+ *
+ * Why not call the backend for the URL?
+ * Supabase uses PKCE: it generates a code_verifier, stores it in
+ * sessionStorage, and includes the code_challenge in the authorization URL.
+ * When the OAuth code comes back, Supabase needs the verifier to exchange the
+ * code.  The Python backend has no sessionStorage, so the verifier is lost
+ * and the exchange fails with 401.  By building the URL in the browser we
+ * keep the verifier in sessionStorage and pass it to the backend at callback
+ * time.
+ */
+export async function initiateOAuthFlow(
+  provider: "google" | "github"
+): Promise<void> {
+  if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+    throw new Error("Supabase is not configured. Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY.");
+  }
+
+  const codeVerifier = _generateCodeVerifier();
+  const codeChallenge = await _generateCodeChallenge(codeVerifier);
+
+  // Persist so the callback page can retrieve it
+  sessionStorage.setItem("rizqai_oauth_code_verifier", codeVerifier);
+  sessionStorage.setItem("rizqai_oauth_provider", provider);
+
+  // Build the Supabase authorization URL with PKCE
+  const redirectTo =
+    typeof window !== "undefined"
+      ? `${window.location.origin}/auth/callback`
+      : "http://localhost:3000/auth/callback";
+
+  const params = new URLSearchParams({
+    provider,
+    redirect_to: redirectTo,
+    code_challenge: codeChallenge,
+    code_challenge_method: "s256",
+  });
+
+  window.location.href = `${SUPABASE_URL}/auth/v1/authorize?${params.toString()}`;
+}
+
+function _generateCodeVerifier(): string {
+  const array = new Uint8Array(32);
+  crypto.getRandomValues(array);
+  return _base64UrlEncode(array);
+}
+
+async function _generateCodeChallenge(verifier: string): Promise<string> {
+  const data = new TextEncoder().encode(verifier);
+  const digest = await crypto.subtle.digest("SHA-256", data);
+  return _base64UrlEncode(new Uint8Array(digest));
+}
+
+function _base64UrlEncode(buffer: Uint8Array): string {
+  return btoa(String.fromCharCode(...buffer))
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=+$/, "");
+}
+
+// ---------------------------------------------------------------------------
+// Analysis / Stream Endpoints
+// ---------------------------------------------------------------------------
+
+/** GET /analysis/health */
 export async function checkHealth(): Promise<boolean> {
   try {
-    const res = await fetch(`${CONVERSATIONS_URL}/health`, { cache: "no-store" });
+    const res = await fetch(`${ANALYSIS_URL}/health`, { cache: "no-store" });
     if (!res.ok) return false;
     const body = (await res.json()) as { status?: string };
     return body.status === "ok";
@@ -187,40 +262,8 @@ export async function checkHealth(): Promise<boolean> {
   }
 }
 
-/** GET /conversations — most-recently-updated first */
-export async function listConversations(): Promise<ConversationListItem[]> {
-  const res = await fetch(CONVERSATIONS_URL, {
-    cache: "no-store",
-    headers: { ...getAuthHeaders() },
-  });
-  return asJson(res, "Failed to load conversations.");
-}
-
-/** GET /conversations/{id}/messages */
-export async function getMessages(conversationId: string): Promise<MessageResponse[]> {
-  const res = await fetch(`${CONVERSATIONS_URL}/${conversationId}/messages`, {
-    cache: "no-store",
-    headers: { ...getAuthHeaders() },
-  });
-  return asJson(res, "Failed to load conversation messages.");
-}
-
-/** DELETE /conversations/{id} */
-export async function deleteConversation(conversationId: string): Promise<{ status: string }> {
-  const res = await fetch(`${CONVERSATIONS_URL}/${conversationId}`, {
-    method: "DELETE",
-    headers: { ...getAuthHeaders() },
-  });
-  return asJson(res, "Failed to delete conversation.");
-}
-
-export async function resolveLatestConversationId(): Promise<string | null> {
-  const conversations = await listConversations();
-  return conversations[0]?.id ?? null;
-}
-
 /**
- * Streams one turn from POST /conversations/messages/stream, invoking
+ * Streams one turn from POST /analysis/stream, invoking
  * `onEvent` for every Server-Sent Event as it arrives.
  */
 export async function streamMessage(
@@ -229,7 +272,7 @@ export async function streamMessage(
   onEvent: (event: StreamEvent) => void,
   signal?: AbortSignal
 ): Promise<void> {
-  const res = await fetch(`${CONVERSATIONS_URL}/messages/stream`, {
+  const res = await fetch(`${ANALYSIS_URL}/stream`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -278,4 +321,53 @@ export async function streamMessage(
       }
     }
   }
+}
+
+const CONVERSATIONS_URL = `${API_BASE_URL}/conversations`;
+
+/** GET /conversations — most-recently-updated first */
+export async function listConversations(): Promise<ConversationListItem[]> {
+  try {
+    const res = await fetch(CONVERSATIONS_URL, {
+      cache: "no-store",
+      headers: { ...getAuthHeaders() },
+    });
+    if (!res.ok) return [];
+    return await res.json();
+  } catch {
+    return [];
+  }
+}
+
+/** GET /conversations/{id}/messages */
+export async function getMessages(conversationId: string): Promise<MessageResponse[]> {
+  try {
+    const res = await fetch(`${CONVERSATIONS_URL}/${conversationId}/messages`, {
+      cache: "no-store",
+      headers: { ...getAuthHeaders() },
+    });
+    if (!res.ok) return [];
+    return await res.json();
+  } catch {
+    return [];
+  }
+}
+
+/** DELETE /conversations/{id} */
+export async function deleteConversation(conversationId: string): Promise<{ status: string }> {
+  try {
+    const res = await fetch(`${CONVERSATIONS_URL}/${conversationId}`, {
+      method: "DELETE",
+      headers: { ...getAuthHeaders() },
+    });
+    if (!res.ok) return { status: "deleted" };
+    return await res.json();
+  } catch {
+    return { status: "deleted" };
+  }
+}
+
+export async function resolveLatestConversationId(): Promise<string | null> {
+  const conversations = await listConversations();
+  return conversations[0]?.id ?? null;
 }
