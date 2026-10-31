@@ -236,6 +236,68 @@ export async function checkHealth(): Promise<boolean> {
   }
 }
 
+const CONVERSATIONS_URL = `${API_BASE_URL}/conversations`;
+
+/** POST /conversations — create a new conversation thread */
+export async function createConversation(title?: string): Promise<ConversationListItem> {
+  const res = await fetch(CONVERSATIONS_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      ...getAuthHeaders(),
+    },
+    body: JSON.stringify({ title: title || "New Analysis" }),
+  });
+  return asJson(res, "Failed to create conversation.");
+}
+
+/** GET /conversations — most-recently-updated first */
+export async function listConversations(): Promise<ConversationListItem[]> {
+  try {
+    const res = await fetch(CONVERSATIONS_URL, {
+      cache: "no-store",
+      headers: { ...getAuthHeaders() },
+    });
+    if (!res.ok) return [];
+    return await res.json();
+  } catch {
+    return [];
+  }
+}
+
+/** GET /conversations/{id}/messages */
+export async function getMessages(conversationId: string): Promise<MessageResponse[]> {
+  try {
+    const res = await fetch(`${CONVERSATIONS_URL}/${conversationId}/messages`, {
+      cache: "no-store",
+      headers: { ...getAuthHeaders() },
+    });
+    if (!res.ok) return [];
+    return await res.json();
+  } catch {
+    return [];
+  }
+}
+
+/** DELETE /conversations/{id} */
+export async function deleteConversation(conversationId: string): Promise<{ status: string }> {
+  try {
+    const res = await fetch(`${CONVERSATIONS_URL}/${conversationId}`, {
+      method: "DELETE",
+      headers: { ...getAuthHeaders() },
+    });
+    if (!res.ok) return { status: "deleted" };
+    return await res.json();
+  } catch {
+    return { status: "deleted" };
+  }
+}
+
+export async function resolveLatestConversationId(): Promise<string | null> {
+  const conversations = await listConversations();
+  return conversations[0]?.id ?? null;
+}
+
 /**
  * Streams one turn from POST /analysis/stream, invoking
  * `onEvent` for every Server-Sent Event as it arrives.
@@ -295,53 +357,4 @@ export async function streamMessage(
       }
     }
   }
-}
-
-const CONVERSATIONS_URL = `${API_BASE_URL}/conversations`;
-
-/** GET /conversations — most-recently-updated first */
-export async function listConversations(): Promise<ConversationListItem[]> {
-  try {
-    const res = await fetch(CONVERSATIONS_URL, {
-      cache: "no-store",
-      headers: { ...getAuthHeaders() },
-    });
-    if (!res.ok) return [];
-    return await res.json();
-  } catch {
-    return [];
-  }
-}
-
-/** GET /conversations/{id}/messages */
-export async function getMessages(conversationId: string): Promise<MessageResponse[]> {
-  try {
-    const res = await fetch(`${CONVERSATIONS_URL}/${conversationId}/messages`, {
-      cache: "no-store",
-      headers: { ...getAuthHeaders() },
-    });
-    if (!res.ok) return [];
-    return await res.json();
-  } catch {
-    return [];
-  }
-}
-
-/** DELETE /conversations/{id} */
-export async function deleteConversation(conversationId: string): Promise<{ status: string }> {
-  try {
-    const res = await fetch(`${CONVERSATIONS_URL}/${conversationId}`, {
-      method: "DELETE",
-      headers: { ...getAuthHeaders() },
-    });
-    if (!res.ok) return { status: "deleted" };
-    return await res.json();
-  } catch {
-    return { status: "deleted" };
-  }
-}
-
-export async function resolveLatestConversationId(): Promise<string | null> {
-  const conversations = await listConversations();
-  return conversations[0]?.id ?? null;
 }

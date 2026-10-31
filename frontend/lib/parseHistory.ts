@@ -23,17 +23,10 @@ type ClassifiedSection =
   | { task: "debate_agent"; data: DebateAgentState }
   | { task: "thesis_agent"; data: ThesisAgentState }
   | { task: "general_finance"; data: GeneralFinanceAnswer }
+  | { task: "guardrail"; data: any }
+  | { task: "planner"; data: any }
   | null;
 
-/**
- * GET /conversations/{id}/messages returns only {id, role, content,
- * created_at} — no agent_name (schemas/conversation.py::MessageResponse).
- * api/helpers.py::get_message_content only ever persists the JSON dump of
- * exactly one of ResearchData / RiskState / DebateAgent / ThesisAgent /
- * GeneralFinanceAnswer as an assistant message, and each of those schemas
- * has a field no other one has — so we can tell them apart reliably by
- * shape alone.
- */
 function classify(raw: string): ClassifiedSection {
   let obj: unknown;
   try {
@@ -49,6 +42,8 @@ function classify(raw: string): ClassifiedSection {
   if ("recommendation" in data) return { task: "thesis_agent", data: data as unknown as ThesisAgentState };
   if ("mode" in data && "answer" in data) return { task: "general_finance", data: data as unknown as GeneralFinanceAnswer };
   if ("tool_data" in data && "summary" in data) return { task: "research_agent", data: data as unknown as ResearchData };
+  if ("companies" in data && "tasks" in data) return { task: "planner", data: data };
+  if ("category" in data && "reason" in data) return { task: "guardrail", data: data };
   return null;
 }
 
@@ -88,7 +83,11 @@ export function reconstructTurns(messages: MessageResponse[]): AnalysisTurn[] {
     const section = classify(message.content);
     if (!section) continue;
 
-    if (section.task === "general_finance") {
+    if (section.task === "guardrail") {
+      current.guardrail = section.data;
+    } else if (section.task === "planner") {
+      current.plan = section.data;
+    } else if (section.task === "general_finance") {
       current.generalFinance = section.data;
     } else {
       switch (section.task) {
@@ -111,12 +110,8 @@ export function reconstructTurns(messages: MessageResponse[]): AnalysisTurn[] {
     }
   }
 
-  // Synthesize a `plan` for turns that went through the company-analysis
-  // path, since the planner's own output (companies, task order) is never
-  // persisted. `companies` can't be recovered; `tasks` is inferred from
-  // which sections actually landed, in their fixed dependency order.
   for (const turn of turns) {
-    if (turn.completedTasks.length > 0) {
+    if (turn.completedTasks.length > 0 && !turn.plan) {
       turn.plan = {
         companies: [],
         tasks: SECTION_ORDER.filter((t) => turn.completedTasks.includes(t)),

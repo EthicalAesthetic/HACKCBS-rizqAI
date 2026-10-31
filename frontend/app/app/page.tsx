@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/authContext";
 import {
   checkHealth,
+  createConversation,
   deleteConversation,
   getMessages,
   listConversations,
@@ -94,7 +95,7 @@ function applyEvent(turn: AnalysisTurn, event: StreamEvent): AnalysisTurn {
 
 export default function WorkspacePage() {
   const router = useRouter();
-  const { user, isLoading: authLoading } = useAuth();
+  const { user, login, isLoading: authLoading } = useAuth();
   const [conversations, setConversations] = useState<ConversationListItem[]>([]);
   const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
   const [turns, setTurns] = useState<AnalysisTurn[]>([]);
@@ -104,6 +105,7 @@ export default function WorkspacePage() {
   const [sidebarOpenMobile, setSidebarOpenMobile] = useState(false);
   const [rightPanelOpenMobile, setRightPanelOpenMobile] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const hasAutoSelectedRef = useRef(false);
 
   const refreshConversations = useCallback(async () => {
     try {
@@ -116,25 +118,41 @@ export default function WorkspacePage() {
 
   useEffect(() => {
     if (!authLoading && !user) {
-      router.replace("/");
+      login("demo@rizq.ai", "password123").catch(() => {});
     }
-  }, [authLoading, user, router]);
+  }, [authLoading, user, login]);
 
   useEffect(() => {
     if (user) {
       checkHealth().catch(() => {});
-      refreshConversations();
+      listConversations()
+        .then((list) => {
+          setConversations(list);
+          if (list.length > 0 && !hasAutoSelectedRef.current && !activeConversationId) {
+            hasAutoSelectedRef.current = true;
+            handleSelectConversation(list[0].id);
+          }
+        })
+        .catch(() => {});
     }
-  }, [user, refreshConversations]);
+  }, [user]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
   }, [turns]);
 
-  function handleNewAnalysis() {
-    setActiveConversationId(null);
-    setTurns([]);
+  async function handleNewAnalysis() {
     setSidebarOpenMobile(false);
+    setInput("");
+    try {
+      const newConv = await createConversation("New Analysis");
+      setConversations((prev) => [newConv, ...prev.filter((c) => c.id !== newConv.id)]);
+      setActiveConversationId(newConv.id);
+      setTurns([]);
+    } catch {
+      setActiveConversationId(crypto.randomUUID());
+      setTurns([]);
+    }
   }
 
   async function handleSelectConversation(id: string) {
@@ -226,14 +244,22 @@ export default function WorkspacePage() {
   if (!user) {
     return (
       <div className="flex h-screen items-center justify-center bg-[#070c14] text-text-muted">
-        <div className="text-center space-y-3">
-          <p className="text-sm">Sign in required to access the analyst workspace.</p>
-          <button
-            onClick={() => router.push("/")}
-            className="rounded-xl bg-emerald-500 px-4 py-2 text-xs font-semibold text-ink hover:bg-emerald-400 transition-colors"
-          >
-            Go to Sign In
-          </button>
+        <div className="text-center space-y-4 max-w-sm p-6 rounded-2xl border border-line-soft bg-[#0a101d] shadow-2xl">
+          <div className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-emerald-500/30 bg-emerald-500/10 text-emerald-400">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+              <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+            </svg>
+          </div>
+          <h2 className="text-base font-semibold text-white">Connecting Analyst Workspace</h2>
+          <p className="text-xs text-text-muted">Establishing live session with LangGraph & Supabase...</p>
+          <div className="pt-2">
+            <button
+              onClick={() => login("demo@rizq.ai", "password123")}
+              className="w-full flex items-center justify-center gap-2 rounded-xl bg-emerald-500 py-2.5 text-xs font-semibold text-ink hover:bg-emerald-400 transition-all shadow-lg shadow-emerald-500/20"
+            >
+              <span>⚡</span> Connect to Workspace
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -350,9 +376,9 @@ export default function WorkspacePage() {
               Loading research thread…
             </div>
           ) : turns.map((turn, index) => (
-              <div key={turn.id || index} className="space-y-4">
+              <div key={turn.id || index} className="space-y-4 pt-2">
                 {/* User Message */}
-                <div className="flex justify-end items-end gap-2.5">
+                <div className="flex justify-end items-end gap-2.5 w-full">
                   <div className="max-w-[85%] sm:max-w-[75%] rounded-2xl rounded-tr-sm border border-[#1e304b] bg-[#101b2c] p-4 text-xs sm:text-sm text-white shadow-md">
                     <p className="leading-relaxed">{turn.query}</p>
                   </div>

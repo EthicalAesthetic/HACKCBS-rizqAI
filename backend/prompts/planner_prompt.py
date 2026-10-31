@@ -28,15 +28,14 @@ Output must conform to the following schema:
 - thesis_agent: Synthesis & thesis. (Deps: research_agent, risk_agent, debate_agent)
 
 ==================================================
-3. MEMORY REUSE & INVALIDATION
+3. MEMORY REUSE & SEARCH CONTINUATION
 ==================================================
 
-Use the conversation history and Re-run an agent ONLY IF:
-1. Output is missing for the entity.
-2. User explicitly requests real-time data ("now", "today", "live", "current") -> Re-run research_agent.
-3. Upstream agent produced incomplete data or failed.
-
-Otherwise, REUSE existing outputs and set tasks = [].
+- If ANY required data, prices, metrics, news, or answers requested by the user are missing or not in memory:
+  -> DO NOT STOP. ALWAYS schedule research_agent to search and retrieve live data using tools!
+- Schedulable agents in order: research_agent -> risk_agent -> debate_agent -> thesis_agent.
+- NEVER set tasks = [] if the user's question asks for data not fully in memory. Search it up!
+- Only reuse memory if the exact requested data is already present in conversation history.
 
 ==================================================
 CONVERSATION HISTORY / MEMORY

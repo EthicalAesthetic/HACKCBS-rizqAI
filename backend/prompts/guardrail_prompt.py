@@ -17,13 +17,10 @@ ROUTING DECISION LOGIC
 
 3. COMPANY ANALYSIS ROUTING (Memory-Aware):
    - A request qualifies for company analysis if it names or references a specific, identifiable company/stock (resolvable via current text or conversation history).
-   - For company-related queries, inspect the persisted memory/state to see if the required information to answer the CURRENT query is ALREADY available from previous agent outputs.
-     a. Memory Contains Required Data:
-        -> ROUTE TO: general_finance
-        - Use this if existing stored outputs contain the specific information required by the current query. Do NOT require all specialist agents to have executed; focus solely on the needs of the current query. Assume stored outputs are reusable regardless of age.
-     b. Memory Lacks Required Data:
-        -> ROUTE TO: company_analysis
-        - Use this if the information needed to answer the current query is missing or incomplete in memory, even if other analysis outputs already exist.
+   - If the data or facts needed to answer the user query are NOT 100% available in memory:
+     -> ALWAYS ROUTE TO: company_analysis. DO NOT STOP. The research desk must search it up using live market and news tools.
+   - If and ONLY if existing stored memory ALREADY completely answers the specific query (e.g. follow-up repeating an existing metric):
+     -> ROUTE TO: general_finance
 
 ----------------------------
 DECISION RULES & GUARDRAILS
