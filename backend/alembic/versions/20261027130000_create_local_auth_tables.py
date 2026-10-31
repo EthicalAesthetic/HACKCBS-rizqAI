@@ -15,40 +15,50 @@ depends_on = None
 
 
 def upgrade() -> None:
-    op.create_table(
-        "users",
-        sa.Column("id", sa.Uuid(as_uuid=False), nullable=False),
-        sa.Column("name", sa.String(length=120), nullable=False),
-        sa.Column("email", sa.String(length=320), nullable=False),
-        sa.Column("password_hash", sa.String(length=256), nullable=False),
-        sa.Column(
-            "created_at",
-            sa.DateTime(timezone=True),
-            server_default=sa.text("CURRENT_TIMESTAMP"),
-            nullable=False,
-        ),
-        sa.PrimaryKeyConstraint("id"),
-        sa.UniqueConstraint("email"),
-    )
-    op.create_index("ix_users_email", "users", ["email"])
+    bind = op.get_bind()
+    inspector = sa.inspect(bind)
+    existing_tables = inspector.get_table_names()
 
-    op.create_table(
-        "auth_sessions",
-        sa.Column("id", sa.String(length=36), nullable=False),
-        sa.Column("user_id", sa.Uuid(as_uuid=False), nullable=False),
-        sa.Column("refresh_token_hash", sa.String(length=64), nullable=False),
-        sa.Column("expires_at", sa.DateTime(timezone=True), nullable=False),
-        sa.Column("revoked_at", sa.DateTime(timezone=True), nullable=True),
-        sa.ForeignKeyConstraint(["user_id"], ["users.id"], ondelete="CASCADE"),
-        sa.PrimaryKeyConstraint("id"),
-        sa.UniqueConstraint("refresh_token_hash"),
-    )
-    op.create_index("ix_auth_sessions_user_id", "auth_sessions", ["user_id"])
+    if "users" not in existing_tables:
+        op.create_table(
+            "users",
+            sa.Column("id", sa.Uuid(as_uuid=False), nullable=False),
+            sa.Column("name", sa.String(length=120), nullable=False),
+            sa.Column("email", sa.String(length=320), nullable=False),
+            sa.Column("password_hash", sa.String(length=256), nullable=False),
+            sa.Column(
+                "created_at",
+                sa.DateTime(timezone=True),
+                server_default=sa.text("CURRENT_TIMESTAMP"),
+                nullable=False,
+            ),
+            sa.PrimaryKeyConstraint("id"),
+            sa.UniqueConstraint("email"),
+        )
+        op.create_index("ix_users_email", "users", ["email"])
+
+    if "auth_sessions" not in existing_tables:
+        op.create_table(
+            "auth_sessions",
+            sa.Column("id", sa.String(length=36), nullable=False),
+            sa.Column("user_id", sa.Uuid(as_uuid=False), nullable=False),
+            sa.Column("refresh_token_hash", sa.String(length=64), nullable=False),
+            sa.Column("expires_at", sa.DateTime(timezone=True), nullable=False),
+            sa.Column("revoked_at", sa.DateTime(timezone=True), nullable=True),
+            sa.ForeignKeyConstraint(["user_id"], ["users.id"], ondelete="CASCADE"),
+            sa.PrimaryKeyConstraint("id"),
+            sa.UniqueConstraint("refresh_token_hash"),
+        )
+        op.create_index("ix_auth_sessions_user_id", "auth_sessions", ["user_id"])
 
     # Existing conversations were tied to Supabase auth.users. Local JWT
     # identities are stored in public.users, so ownership is enforced by the
     # authenticated route filters rather than an incompatible FK.
-    op.drop_constraint("conversations_user_id_fkey", "conversations", type_="foreignkey")
+    # Drop FK only if it still exists.
+    fks = inspector.get_foreign_keys("conversations") if "conversations" in existing_tables else []
+    fk_names = [fk["name"] for fk in fks]
+    if "conversations_user_id_fkey" in fk_names:
+        op.drop_constraint("conversations_user_id_fkey", "conversations", type_="foreignkey")
 
 
 def downgrade() -> None:

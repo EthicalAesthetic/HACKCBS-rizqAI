@@ -5,6 +5,7 @@ Revises: 20261027124500
 """
 
 from alembic import op
+import sqlalchemy as sa
 
 
 revision = "20261027125000"
@@ -14,16 +15,20 @@ depends_on = None
 
 
 def upgrade() -> None:
-    op.alter_column(
-        "pending_signups",
-        "supabase_user_id",
-        nullable=True,
-    )
+    # SQLite does not support ALTER COLUMN directly.
+    # Use batch_alter_table which Alembic translates to a table-copy for SQLite.
+    with op.batch_alter_table("pending_signups") as batch_op:
+        batch_op.alter_column(
+            "supabase_user_id",
+            existing_type=sa.String(length=36),
+            nullable=True,
+        )
 
 
 def downgrade() -> None:
-    op.alter_column(
-        "pending_signups",
-        "supabase_user_id",
-        nullable=False,
-    )
+    with op.batch_alter_table("pending_signups") as batch_op:
+        batch_op.alter_column(
+            "supabase_user_id",
+            existing_type=sa.String(length=36),
+            nullable=False,
+        )
