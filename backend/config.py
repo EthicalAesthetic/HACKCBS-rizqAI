@@ -25,13 +25,13 @@ groq_llm = ChatGroq(
     model="openai/gpt-oss-120b",
     temperature=0.2,
     timeout=30,
-    api_key=GROQ_API_KEY,
+    api_key=GROQ_API_KEY or "gsk_dummy_placeholder_key",
 )
 
 mistral_llm = ChatMistralAI(
     model="ministral-3-14b-latest",
     temperature=0.2,
-    api_key=MISTRAL_API_KEY,
+    api_key=MISTRAL_API_KEY or "mistral_dummy_placeholder_key",
     timeout=20,
 )
 
@@ -39,7 +39,7 @@ openrouter_llm = ChatOpenRouter(
     model="openai/gpt-oss-120b",
     temperature=0.2,
     timeout=30,
-    api_key=OPENROUTER_API_KEY,
+    api_key=OPENROUTER_API_KEY or "sk-or-dummy_placeholder_key",
 )
 
 # Robust fallback chain: Groq -> Google -> OpenRouter
@@ -48,7 +48,7 @@ primary_llm = llm
 
 guardrail_llm_groq = ChatGroq(
     model="openai/gpt-oss-20b",
-    api_key=GROQ_API_KEY,
+    api_key=GROQ_API_KEY or "gsk_dummy_placeholder_key",
     timeout=20,
     temperature=0,
 )
