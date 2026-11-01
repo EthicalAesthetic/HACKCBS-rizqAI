@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono, Fraunces } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/lib/authContext";
@@ -26,6 +26,13 @@ export const metadata: Metadata = {
     "An AI research desk that plans, researches, weighs risk, debates both sides, and delivers a verdict on any stock.",
 };
 
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -36,7 +43,7 @@ export default function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} ${fraunces.variable} h-full antialiased scroll-smooth`}
     >
-      <body className="flex h-dvh flex-col overflow-hidden bg-background text-foreground">
+      <body className="flex h-full min-h-dvh flex-col overflow-hidden bg-background text-foreground">
         <AuthProvider>{children}</AuthProvider>
       </body>
     </html>

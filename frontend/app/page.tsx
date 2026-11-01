@@ -277,7 +277,7 @@ export default function WorkspacePage() {
   const activeTurn = turns.length > 0 ? turns[turns.length - 1] : null;
 
   return (
-    <div className="flex h-screen w-full overflow-hidden bg-[#060b13] text-foreground">
+    <div className="flex h-full w-full overflow-hidden bg-[#060b13] text-foreground">
       <WorkspaceSidebar
         conversations={conversations}
         activeConversationId={activeConversationId}
