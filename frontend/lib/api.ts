@@ -2,8 +2,16 @@ import type { ConversationListItem, MessageResponse, StreamEvent } from "./types
 
 export type { StreamEvent } from "./types";
 
+const configuredApiUrl = process.env.NEXT_PUBLIC_API_URL?.trim();
+
+if (!configuredApiUrl && process.env.NODE_ENV === "production") {
+  throw new Error(
+    "NEXT_PUBLIC_API_URL is required in production. Set it to the deployed backend URL and rebuild the frontend.",
+  );
+}
+
 export const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") || "http://localhost:8000";
+  configuredApiUrl?.replace(/\/$/, "") || "http://localhost:8000";
 
 const ANALYSIS_URL = `${API_BASE_URL}/analysis`;
 const AUTH_URL = `${API_BASE_URL}/auth`;
