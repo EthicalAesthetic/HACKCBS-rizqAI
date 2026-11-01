@@ -43,7 +43,7 @@ openrouter_llm = ChatOpenRouter(
 )
 
 # Robust fallback chain: Groq -> Google -> OpenRouter
-llm = groq_llm.with_fallbacks([google_llm, openrouter_llm])
+llm = google_llm.with_fallbacks([groq_llm, openrouter_llm])
 primary_llm = llm
 
 guardrail_llm_groq = ChatGroq(
