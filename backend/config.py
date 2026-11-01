@@ -29,7 +29,7 @@ groq_llm = ChatGroq(
 )
 
 mistral_llm = ChatMistralAI(
-    model="ministral-3-14b-latest",
+    model="ministral-small-2603",
     temperature=0.2,
     api_key=MISTRAL_API_KEY or "mistral_dummy_placeholder_key",
     timeout=20,
