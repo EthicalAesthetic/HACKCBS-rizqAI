@@ -60,11 +60,17 @@ On Vercel, the recommended and most reliable setup is deploying both as linked p
 
 | Environment Variable | Value |
 | :--- | :--- |
-| `NEXT_PUBLIC_API_URL` | `https://rizqai-backend.vercel.app` (Your deployed backend URL from Step 1) |
+| `NEXT_PUBLIC_API_URL` | `https://rizqai-backend.vercel.app` (Your deployed backend URL from Step 1; do not include a trailing slash) |
 | `NEXT_PUBLIC_SUPABASE_URL` | `https://[your-project-ref].supabase.co` |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase public anon key |
 
-5. Click **Deploy**.
+5. Make sure the variable is enabled for the deployment target (**Production**, and **Preview** if needed).
+6. Click **Deploy**. Changing this variable requires a new frontend deployment because Next.js embeds `NEXT_PUBLIC_*` values during the build.
+
+> [!IMPORTANT]
+> If the browser's request URL is `http://localhost:8000`, the frontend was built without
+> `NEXT_PUBLIC_API_URL`. Add it to the **frontend Vercel project**, then redeploy without
+> the existing build cache. The frontend must point to the backend URL, not its own URL.
 
 ---
 

@@ -5,7 +5,7 @@
 </div>
 
 <p align="center">
-  <b>An autonomous, multi-agent financial intelligence and investment research engine orchestrated via LangGraph, powered by structured LLM reasoning, real-time market data ingestion, and adversarial Bull-Bear debate synthesis.</b>
+  <b>An autonomous, multi-agent financial intelligence and investment research engine orchestrated via LangGraph, powered by structured LLM reasoning, real-time market data ingestion, and adversarial Bull-Bear debate synthesis</b>
 </p>
 
 <div align="center">
