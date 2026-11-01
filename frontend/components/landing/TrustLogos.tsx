@@ -1,26 +1,26 @@
 export default function TrustLogos() {
   const partners = [
-    { name: "Bloomberg", font: "font-serif tracking-tight font-extrabold text-lg sm:text-xl" },
-    { name: "REUTERS", font: "font-sans tracking-widest font-bold text-sm sm:text-base" },
-    { name: "yahoo! finance", font: "font-sans tracking-tight font-black text-base sm:text-lg italic" },
-    { name: "CNBC", font: "font-sans font-black tracking-tight text-lg sm:text-xl" },
-    { name: "Investopedia", font: "font-sans font-bold tracking-tight text-base sm:text-lg" },
-    { name: "FT FINANCIAL TIMES", font: "font-serif tracking-wider font-semibold text-xs sm:text-sm" },
-    { name: "MarketWatch", font: "font-sans tracking-tight font-black text-sm sm:text-base uppercase" },
+    { name: "Bloomberg", font: "font-serif tracking-tight font-extrabold text-base sm:text-lg" },
+    { name: "REUTERS", font: "font-sans tracking-widest font-bold text-xs sm:text-sm" },
+    { name: "yahoo! finance", font: "font-sans tracking-tight font-black text-sm sm:text-base italic" },
+    { name: "CNBC", font: "font-sans font-black tracking-tight text-base sm:text-lg" },
+    { name: "Investopedia", font: "font-sans font-bold tracking-tight text-sm sm:text-base" },
+    { name: "FINANCIAL TIMES", font: "font-serif tracking-widest font-semibold text-xs sm:text-sm" },
+    { name: "SEC EDGAR", font: "font-mono tracking-wider font-bold text-xs sm:text-sm uppercase" },
   ];
 
   return (
-    <section className="relative border-y border-line-soft/60 bg-[#070c14]/80 py-10 backdrop-blur-md">
+    <section className="relative border-y border-white/[0.08] bg-black py-10">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center">
-        <p className="text-xs uppercase tracking-widest text-text-faint font-medium">
-          Trusted by forward-thinking investors, analysts and finance enthusiasts
+        <p className="text-[10px] uppercase tracking-[0.2em] text-zinc-500 font-mono">
+          Data Connectors & Verified Telemetry Sources
         </p>
 
-        <div className="mt-7 flex flex-wrap items-center justify-center gap-8 sm:gap-14 opacity-60 grayscale hover:grayscale-0 hover:opacity-90 transition-all duration-300">
+        <div className="mt-6 flex flex-wrap items-center justify-center gap-8 sm:gap-14 opacity-50 hover:opacity-90 transition-all duration-300">
           {partners.map((partner) => (
             <div
               key={partner.name}
-              className={`text-text-muted hover:text-white transition-colors cursor-default select-none ${partner.font}`}
+              className={`text-zinc-400 hover:text-white transition-colors cursor-default select-none ${partner.font}`}
             >
               {partner.name}
             </div>
@@ -30,4 +30,3 @@ export default function TrustLogos() {
     </section>
   );
 }
-

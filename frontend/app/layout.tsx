@@ -43,7 +43,7 @@ export default function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} ${fraunces.variable} h-full antialiased scroll-smooth`}
     >
-      <body className="flex h-full min-h-dvh flex-col overflow-hidden bg-background text-foreground">
+      <body className="flex h-full min-h-dvh flex-col overflow-hidden bg-black text-white selection:bg-white/20 selection:text-white">
         <AuthProvider>{children}</AuthProvider>
       </body>
     </html>

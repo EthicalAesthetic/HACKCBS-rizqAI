@@ -86,7 +86,6 @@ export default function CandlestickChart({ symbol }: CandlestickChartProps) {
       if (c.volume > maxV) maxV = c.volume;
     }
 
-    // Add 2% breathing room to price bounds
     const pMargin = (maxP - minP) * 0.04 || 1;
     return {
       minPrice: Math.max(0, minP - pMargin),
@@ -98,50 +97,53 @@ export default function CandlestickChart({ symbol }: CandlestickChartProps) {
   const priceRange = maxPrice - minPrice || 1;
 
   // Transform coordinates
-  const getY = (val: number) => {
-    return padding.top + (1 - (val - minPrice) / priceRange) * pricePlotHeight;
+  const getY = (p: number) => {
+    const norm = (p - minPrice) / priceRange;
+    return padding.top + (1 - norm) * pricePlotHeight;
   };
 
-  const getVolY = (vol: number) => {
-    return volumePlotTop + (1 - vol / maxVolume) * volumePlotHeight;
+  const getVolY = (v: number) => {
+    const norm = v / maxVolume;
+    return volumePlotTop + (1 - norm) * volumePlotHeight;
   };
 
+  // Candle horizontal calculations
   const candleSpacing = candles.length > 0 ? plotWidth / candles.length : 10;
-  const candleBarWidth = Math.max(2, Math.min(12, candleSpacing * 0.72));
+  const candleBarWidth = Math.max(2, Math.min(14, candleSpacing * 0.65));
 
-  // Compute SMA polyline path
+  // Compute 20-Day SMA path points
   const smaPoints = useMemo(() => {
-    const points: string[] = [];
+    const pts: string[] = [];
     candles.forEach((c, idx) => {
-      if (c.sma20 != null) {
+      if (c.sma20 != null && !isNaN(c.sma20)) {
         const x = padding.left + idx * candleSpacing + candleSpacing / 2;
         const y = getY(c.sma20);
-        points.push(`${x.toFixed(1)},${y.toFixed(1)}`);
+        pts.push(`${x.toFixed(1)},${y.toFixed(1)}`);
       }
     });
-    return points.join(" ");
-  }, [candles, candleSpacing, minPrice, priceRange, padding.left, pricePlotHeight]);
+    return pts.length > 1 ? pts.join(" ") : null;
+  }, [candles, candleSpacing, minPrice, priceRange, plotWidth]);
 
-  // Price grid steps (4 horizontal guide levels)
-  const priceSteps = useMemo(() => {
-    const steps = 4;
-    const list: number[] = [];
-    for (let i = 0; i <= steps; i++) {
-      list.push(minPrice + (priceRange / steps) * i);
-    }
-    return list;
-  }, [minPrice, priceRange]);
+  // Handle interactive crosshair hover
+  const handleMouseMove = (e: React.MouseEvent<SVGSVGElement>) => {
+    if (!svgRef.current || candles.length === 0) return;
+    const rect = svgRef.current.getBoundingClientRect();
+    const mouseX = e.clientX - rect.left - padding.left;
+    const clampedX = Math.max(0, Math.min(plotWidth, mouseX));
+    const idx = Math.min(candles.length - 1, Math.max(0, Math.floor(clampedX / candleSpacing)));
+    setHoveredIndex(idx);
+  };
 
-  // Active inspected candle (hovered or last)
-  const activeCandle: CandleData | null =
-    hoveredIndex != null && candles[hoveredIndex]
-      ? candles[hoveredIndex]
-      : candles[candles.length - 1] || null;
+  const handleMouseLeave = () => {
+    setHoveredIndex(null);
+  };
 
+  // Active inspected candle (defaults to latest close)
+  const activeCandle = hoveredIndex != null ? candles[hoveredIndex] : candles[candles.length - 1];
   const activeCandleChange = useMemo(() => {
     if (!activeCandle) return { diff: 0, pct: 0, isUp: true };
     const diff = activeCandle.close - activeCandle.open;
-    const pct = activeCandle.open ? (diff / activeCandle.open) * 100 : 0;
+    const pct = (diff / activeCandle.open) * 100;
     return {
       diff: Number(diff.toFixed(2)),
       pct: Number(pct.toFixed(2)),
@@ -149,56 +151,32 @@ export default function CandlestickChart({ symbol }: CandlestickChartProps) {
     };
   }, [activeCandle]);
 
-  // Handle mouse move for crosshair
-  const handleMouseMove = (e: React.MouseEvent<SVGSVGElement>) => {
-    if (!svgRef.current || candles.length === 0) return;
-    const rect = svgRef.current.getBoundingClientRect();
-    const x = e.clientX - rect.left - padding.left;
-    const idx = Math.floor(x / candleSpacing);
-    if (idx >= 0 && idx < candles.length) {
-      setHoveredIndex(idx);
-    } else {
-      setHoveredIndex(null);
+  // 4 Horizontal Price Axis Gridlines
+  const priceSteps = useMemo(() => {
+    const stepCount = 4;
+    const steps: number[] = [];
+    for (let i = 0; i <= stepCount; i++) {
+      steps.push(minPrice + (priceRange * i) / stepCount);
     }
-  };
-
-  const handleMouseLeave = () => {
-    setHoveredIndex(null);
-  };
+    return steps;
+  }, [minPrice, priceRange]);
 
   if (!symbol) return null;
 
   return (
     <div
       ref={containerRef}
-      className="rounded-2xl border border-[#1b283e] bg-gradient-to-b from-[#0b1424] via-[#080f1b] to-[#060b14] p-4.5 sm:p-5 space-y-3.5 shadow-xl transition-all"
+      className="rounded-2xl border border-white/[0.08] bg-black p-4 sm:p-5 space-y-3.5 shadow-2xl"
     >
-      {/* 1. Header Bar: Symbol, Current Quote, Period Return & Timeframe Selectors */}
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#142032] pb-3">
-        {/* Left: Ticker Info & Live Quote */}
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2">
-            <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-500/15 text-emerald-400 font-mono text-xs font-bold border border-emerald-500/30">
-              📈
-            </span>
-            <div>
-              <div className="flex items-center gap-2 font-mono">
-                <span className="text-sm font-bold text-white tracking-wide">
-                  {symbol.toUpperCase()}
-                </span>
-                <span className="rounded bg-emerald-500/10 border border-emerald-500/20 px-1.5 py-0.2 font-mono text-[9px] text-emerald-400">
-                  Daily Candles
-                </span>
-              </div>
-              <div className="text-[10px] text-text-faint font-mono">
-                {summary ? `${summary.candle_count} Sessions · High $${summary.period_high.toFixed(2)} / Low $${summary.period_low.toFixed(2)}` : "Live Price Action"}
-              </div>
-            </div>
-          </div>
+      {/* 1. Chart Header: Symbol, Latest Price, Period Selectors */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/[0.06] pb-3">
+        <div className="flex items-center gap-2.5">
+          <span className="rounded-md bg-white/[0.08] border border-white/[0.14] px-2 py-0.5 font-mono text-[10px] font-bold text-white uppercase tracking-wider">
+            {symbol.toUpperCase()} · OHLCV
+          </span>
 
-          {/* Price & Period Delta */}
           {summary && (
-            <div className="hidden sm:flex items-baseline gap-2 font-mono pl-3 border-l border-[#19263a]">
+            <div className="hidden sm:flex items-baseline gap-2 font-mono pl-3 border-l border-white/[0.08]">
               <span className="text-base font-bold text-white">
                 ${summary.latest_close.toFixed(2)}
               </span>
@@ -216,7 +194,7 @@ export default function CandlestickChart({ symbol }: CandlestickChartProps) {
         </div>
 
         {/* Right: Timeframe Selectors (1M, 3M, 6M, 1Y) */}
-        <div className="flex items-center gap-1 rounded-xl border border-[#162234] bg-[#070d18] p-1 font-mono text-[11px]">
+        <div className="flex items-center gap-1 rounded-xl border border-white/[0.08] bg-white/[0.02] p-1 font-mono text-[11px]">
           {(["1mo", "3mo", "6mo", "1y"] as Period[]).map((t) => {
             const labelMap: Record<Period, string> = {
               "1mo": "1M",
@@ -231,8 +209,8 @@ export default function CandlestickChart({ symbol }: CandlestickChartProps) {
                 onClick={() => setPeriod(t)}
                 className={`rounded-lg px-2.5 py-1 font-semibold transition-all cursor-pointer ${
                   isActive
-                    ? "bg-emerald-500 text-black shadow-sm"
-                    : "text-text-muted hover:text-white hover:bg-white/5"
+                    ? "bg-white text-black shadow-sm"
+                    : "text-zinc-400 hover:text-white hover:bg-white/[0.06]"
                 }`}
               >
                 {labelMap[t]}
@@ -243,12 +221,12 @@ export default function CandlestickChart({ symbol }: CandlestickChartProps) {
       </div>
 
       {/* 2. Interactive Tooltip HUD (Date, Open, High, Low, Close, Volume, SMA20) */}
-      <div className="min-h-[24px] rounded-lg border border-[#152236] bg-[#050b14] px-3 py-1.5 font-mono text-[11px] flex flex-wrap items-center justify-between gap-2 text-text-muted">
+      <div className="min-h-[26px] rounded-lg border border-white/[0.08] bg-white/[0.02] px-3.5 py-1.5 font-mono text-[11px] flex flex-wrap items-center justify-between gap-2 text-zinc-400">
         {activeCandle ? (
           <>
             <div className="flex items-center gap-2">
               <span className="text-white font-bold">{activeCandle.date}</span>
-              <span>•</span>
+              <span className="text-zinc-600">•</span>
               <span>
                 O: <span className="text-white">${activeCandle.open.toFixed(2)}</span>
               </span>
@@ -274,37 +252,37 @@ export default function CandlestickChart({ symbol }: CandlestickChartProps) {
 
             <div className="flex items-center gap-3 text-[10.5px]">
               {activeCandle.sma20 && (
-                <span className="text-sky-400 font-semibold">
+                <span className="text-zinc-200 font-semibold">
                   SMA(20): ${activeCandle.sma20.toFixed(2)}
                 </span>
               )}
-              <span className="text-text-faint">
+              <span className="text-zinc-500">
                 Vol: {(activeCandle.volume / 1_000_000).toFixed(1)}M
               </span>
             </div>
           </>
         ) : (
-          <span className="text-text-faint italic">Hover over candlestick chart to inspect price action…</span>
+          <span className="text-zinc-500 italic">Hover over candlestick chart to inspect price action…</span>
         )}
       </div>
 
       {/* 3. SVG Candlestick Viewport */}
-      <div className="relative overflow-hidden rounded-xl border border-[#142032] bg-[#040810]">
+      <div className="relative overflow-hidden rounded-xl border border-white/[0.08] bg-black">
         {loading && (
-          <div className="absolute inset-0 z-20 flex items-center justify-center bg-[#040810]/70 backdrop-blur-[2px]">
-            <div className="flex items-center gap-2 font-mono text-xs text-emerald-400">
-              <span className="h-2 w-2 rounded-full bg-emerald-400 animate-ping" />
+          <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/80 backdrop-blur-sm">
+            <div className="flex items-center gap-2 font-mono text-xs text-white">
+              <span className="h-2 w-2 rounded-full bg-white animate-ping" />
               <span>Fetching {symbol.toUpperCase()} candles…</span>
             </div>
           </div>
         )}
 
         {error && (
-          <div className="flex h-56 flex-col items-center justify-center gap-2 font-mono text-xs text-rose-400">
+          <div className="flex h-56 flex-col items-center justify-center gap-2 font-mono text-xs text-zinc-400">
             <span>⚠️ {error}</span>
             <button
               onClick={() => setPeriod(period)}
-              className="rounded-lg border border-rose-500/30 px-3 py-1 text-[11px] text-white hover:bg-rose-500/10 cursor-pointer"
+              className="rounded-lg border border-white/20 px-3 py-1 text-[11px] text-white hover:bg-white/10 cursor-pointer"
             >
               Retry
             </button>
@@ -322,12 +300,12 @@ export default function CandlestickChart({ symbol }: CandlestickChartProps) {
           >
             <defs>
               <linearGradient id="volGradUp" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#10b981" stopOpacity="0.5" />
-                <stop offset="100%" stopColor="#10b981" stopOpacity="0.1" />
+                <stop offset="0%" stopColor="#34d399" stopOpacity="0.4" />
+                <stop offset="100%" stopColor="#34d399" stopOpacity="0.05" />
               </linearGradient>
               <linearGradient id="volGradDown" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#f43f5e" stopOpacity="0.5" />
-                <stop offset="100%" stopColor="#f43f5e" stopOpacity="0.1" />
+                <stop offset="0%" stopColor="#f87171" stopOpacity="0.4" />
+                <stop offset="100%" stopColor="#f87171" stopOpacity="0.05" />
               </linearGradient>
             </defs>
 
@@ -341,14 +319,14 @@ export default function CandlestickChart({ symbol }: CandlestickChartProps) {
                     y1={y}
                     x2={padding.left + plotWidth}
                     y2={y}
-                    stroke="#142136"
+                    stroke="rgba(255, 255, 255, 0.05)"
                     strokeWidth="1"
-                    strokeDasharray="3 3"
+                    strokeDasharray="2 2"
                   />
                   <text
                     x={padding.left + plotWidth + 6}
                     y={y + 3.5}
-                    fill="#64748b"
+                    fill="#71717a"
                     fontSize="9.5"
                     fontFamily="monospace"
                   >
@@ -364,13 +342,13 @@ export default function CandlestickChart({ symbol }: CandlestickChartProps) {
               y1={volumePlotTop - 4}
               x2={padding.left + plotWidth}
               y2={volumePlotTop - 4}
-              stroke="#142136"
+              stroke="rgba(255, 255, 255, 0.06)"
               strokeWidth="1"
             />
             <text
               x={padding.left + plotWidth + 6}
               y={volumePlotTop + 8}
-              fill="#475569"
+              fill="#52525b"
               fontSize="8.5"
               fontFamily="monospace"
             >
@@ -399,7 +377,7 @@ export default function CandlestickChart({ symbol }: CandlestickChartProps) {
             {/* Candlesticks (Wicks + Bodies) */}
             {candles.map((c, idx) => {
               const isUp = c.close >= c.open;
-              const color = isUp ? "#10b981" : "#f43f5e";
+              const color = isUp ? "#34d399" : "#f87171";
               const centerX = padding.left + idx * candleSpacing + candleSpacing / 2;
               const bodyX = centerX - candleBarWidth / 2;
 
@@ -414,7 +392,7 @@ export default function CandlestickChart({ symbol }: CandlestickChartProps) {
               const isHovered = hoveredIndex === idx;
 
               return (
-                <g key={`candle-${idx}`} opacity={hoveredIndex != null && !isHovered ? 0.65 : 1}>
+                <g key={`candle-${idx}`} opacity={hoveredIndex != null && !isHovered ? 0.6 : 1}>
                   {/* Upper and Lower Wick */}
                   <line
                     x1={centerX}
@@ -440,16 +418,16 @@ export default function CandlestickChart({ symbol }: CandlestickChartProps) {
               );
             })}
 
-            {/* 20-Day SMA Line */}
+            {/* 20-Day SMA Line — Monochromatic White Ribbon */}
             {smaPoints && (
               <polyline
                 fill="none"
-                stroke="#38bdf8"
-                strokeWidth="1.6"
+                stroke="#ffffff"
+                strokeWidth="1.5"
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 points={smaPoints}
-                opacity="0.85"
+                opacity="0.8"
               />
             )}
 
@@ -462,10 +440,10 @@ export default function CandlestickChart({ symbol }: CandlestickChartProps) {
                   y1={padding.top}
                   x2={padding.left + hoveredIndex * candleSpacing + candleSpacing / 2}
                   y2={height - padding.bottom}
-                  stroke="#94a3b8"
+                  stroke="#a1a1aa"
                   strokeWidth="1"
                   strokeDasharray="2 2"
-                  opacity="0.75"
+                  opacity="0.6"
                 />
 
                 {/* Horizontal Price Crosshair Line */}
@@ -474,10 +452,10 @@ export default function CandlestickChart({ symbol }: CandlestickChartProps) {
                   y1={getY(candles[hoveredIndex].close)}
                   x2={padding.left + plotWidth}
                   y2={getY(candles[hoveredIndex].close)}
-                  stroke="#94a3b8"
+                  stroke="#a1a1aa"
                   strokeWidth="1"
                   strokeDasharray="2 2"
-                  opacity="0.75"
+                  opacity="0.6"
                 />
 
                 {/* Cursor Price Tag on Right Axis */}
@@ -487,8 +465,8 @@ export default function CandlestickChart({ symbol }: CandlestickChartProps) {
                     y="0"
                     width="54"
                     height="18"
-                    fill="#1e293b"
-                    stroke="#38bdf8"
+                    fill="#09090b"
+                    stroke="rgba(255, 255, 255, 0.3)"
                     strokeWidth="0.8"
                     rx="3"
                   />
@@ -496,7 +474,7 @@ export default function CandlestickChart({ symbol }: CandlestickChartProps) {
                     x="27"
                     y="12"
                     textAnchor="middle"
-                    fill="#38bdf8"
+                    fill="#ffffff"
                     fontSize="9.5"
                     fontWeight="bold"
                     fontFamily="monospace"
@@ -509,7 +487,6 @@ export default function CandlestickChart({ symbol }: CandlestickChartProps) {
 
             {/* Date Labels on X Axis (Sampled) */}
             {candles.map((c, idx) => {
-              // Show label every ~6 candles
               const sampleInterval = Math.max(4, Math.floor(candles.length / 6));
               if (idx % sampleInterval !== 0 && idx !== candles.length - 1) return null;
 
@@ -523,7 +500,7 @@ export default function CandlestickChart({ symbol }: CandlestickChartProps) {
                   x={x}
                   y={height - 12}
                   textAnchor="middle"
-                  fill="#64748b"
+                  fill="#71717a"
                   fontSize="9.5"
                   fontFamily="monospace"
                 >
@@ -536,24 +513,24 @@ export default function CandlestickChart({ symbol }: CandlestickChartProps) {
       </div>
 
       {/* 4. Legend & Footnote */}
-      <div className="flex flex-wrap items-center justify-between gap-2 pt-1 font-mono text-[10px] text-text-faint">
+      <div className="flex flex-wrap items-center justify-between gap-2 pt-1 font-mono text-[10px] text-zinc-500">
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-1.5">
             <span className="h-2 w-2 rounded-full bg-emerald-400" />
-            <span>Bullish Candle</span>
+            <span>Bullish</span>
           </div>
           <div className="flex items-center gap-1.5">
             <span className="h-2 w-2 rounded-full bg-rose-400" />
-            <span>Bearish Candle</span>
+            <span>Bearish</span>
           </div>
-          <div className="flex items-center gap-1.5 text-sky-400 font-semibold">
-            <span className="h-0.5 w-3.5 bg-sky-400 rounded-full" />
+          <div className="flex items-center gap-1.5 text-zinc-300 font-medium">
+            <span className="h-0.5 w-3.5 bg-white rounded-full" />
             <span>20-Session SMA</span>
           </div>
         </div>
 
-        <div className="text-text-muted">
-          Source: Real-time Yahoo Finance OHLCV · Auto-updated
+        <div className="text-zinc-500">
+          Yahoo Finance OHLCV · Auto-updated
         </div>
       </div>
     </div>

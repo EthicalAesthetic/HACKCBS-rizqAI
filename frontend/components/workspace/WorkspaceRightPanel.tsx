@@ -42,7 +42,7 @@ export default function WorkspaceRightPanel({
   let sector = "—";
   let industry = "—";
 
-  // New tool metrics
+  // Tool metrics
   let rsiValue = "—";
   let macdBias = "—";
   let volatilityPct = "—";
@@ -114,37 +114,39 @@ export default function WorkspaceRightPanel({
   const symbolIcon = (planCompany || companyName || "•").slice(0, 1).toUpperCase();
 
   const content = (
-    <div className="flex h-full flex-col justify-between p-3.5 bg-[#060b13] border-l border-[#141f2e] text-text overflow-y-auto select-none">
-      <div className="space-y-3.5">
+    <div className="flex h-full flex-col justify-between p-4 bg-black border-l border-white/[0.08] text-white overflow-y-auto select-none">
+      <div className="space-y-4">
         {/* Top Header */}
-        <div className="flex items-center justify-between pb-2 border-b border-[#141f2e]">
+        <div className="flex items-center justify-between pb-3 border-b border-white/[0.08]">
           <div className="flex items-center gap-2">
-            <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse-dot" />
-            <span className="text-xs font-mono font-semibold text-white">Live Intelligence Terminal</span>
+            <span className="h-1.5 w-1.5 rounded-full bg-white animate-pulse" />
+            <span className="text-xs font-mono font-medium uppercase tracking-wider text-zinc-300">
+              Intelligence Panel
+            </span>
           </div>
 
           {activeTurn?.status === "streaming" ? (
-            <span className="flex items-center gap-1.5 rounded-full border border-amber-500/40 bg-amber-500/10 px-2 py-0.5 font-mono text-[9.5px] font-semibold text-amber-300">
-              <span className="h-1.5 w-1.5 rounded-full bg-amber-400 animate-pulse" />
+            <span className="flex items-center gap-1.5 rounded-full border border-white/20 bg-white/[0.06] px-2.5 py-0.5 font-mono text-[9.5px] font-medium text-white">
+              <span className="h-1.5 w-1.5 rounded-full bg-white animate-ping" />
               STREAMING
             </span>
           ) : (
-            <span className="font-mono text-[9.5px] text-[#4d5f75]">
-              {activeTurn ? "Active Query" : "Standby"}
+            <span className="font-mono text-[9.5px] text-zinc-500">
+              {activeTurn ? "Active Feed" : "Standby"}
             </span>
           )}
         </div>
 
         {/* Tab Navigation: Financials / Technicals / News / Debate */}
-        <div className="flex items-center justify-between border-b border-[#141f2e] pb-1 text-[11px] font-mono">
+        <div className="flex items-center justify-between border-b border-white/[0.08] pb-1 font-mono text-[11px]">
           {(["Financials", "Technicals", "News", "Debate"] as const).map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`pb-1.5 px-1.5 transition-colors cursor-pointer ${
+              className={`pb-2 px-1 transition-all duration-150 cursor-pointer ${
                 activeTab === tab
-                  ? "border-b-2 border-emerald-400 text-emerald-400 font-bold"
-                  : "text-[#6b809a] hover:text-white"
+                  ? "border-b-2 border-white text-white font-bold"
+                  : "text-zinc-500 hover:text-zinc-300"
               }`}
             >
               {tab}
@@ -153,24 +155,24 @@ export default function WorkspaceRightPanel({
         </div>
 
         {/* Company Card Header */}
-        <div className="space-y-2 border-b border-[#141f2e] pb-3">
-          <div className="flex items-center gap-2.5">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg text-white font-black text-xs bg-emerald-600 shadow-sm">
+        <div className="space-y-2.5 border-b border-white/[0.08] pb-4">
+          <div className="flex items-center gap-3">
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/20 bg-white/[0.06] text-white font-mono font-bold text-xs shadow-sm">
               {symbolIcon}
             </div>
             <div className="min-w-0 flex-1 truncate">
-              <h4 className="text-xs sm:text-sm font-bold text-white truncate leading-tight">{companyName}</h4>
-              <p className="text-[10.5px] font-mono text-emerald-400 font-semibold">{exchangePrice}</p>
+              <h4 className="text-xs sm:text-sm font-bold text-white truncate tracking-tight">{companyName}</h4>
+              <p className="text-[11px] font-mono text-zinc-300 font-semibold">{exchangePrice}</p>
             </div>
           </div>
           {sector !== "—" && (
-            <div className="flex gap-1.5 text-[9.5px] font-mono text-[#556980]">
+            <div className="flex gap-1.5 text-[9.5px] font-mono text-zinc-500">
               <span>{sector}</span>
               <span>•</span>
               <span>{industry}</span>
             </div>
           )}
-          <p className="text-[11.5px] text-[#8fa2ba] leading-relaxed line-clamp-3">
+          <p className="text-[11.5px] text-zinc-400 leading-relaxed line-clamp-3">
             {description}
           </p>
         </div>
@@ -178,43 +180,43 @@ export default function WorkspaceRightPanel({
         {/* TAB 1: Financials */}
         {activeTab === "Financials" && (
           <div className="space-y-3">
-            <div className="rounded-xl border border-[#142031] bg-[#08101a] p-3 space-y-2">
-              <div className="font-mono text-[9.5px] uppercase tracking-wider text-[#556980] pb-1 border-b border-[#141f2e]">
-                Fundamental Multiples & Valuation
+            <div className="rounded-xl border border-white/[0.08] bg-white/[0.02] p-3.5 space-y-2.5">
+              <div className="font-mono text-[9.5px] uppercase tracking-wider text-zinc-500 pb-1.5 border-b border-white/[0.06]">
+                Valuation Multiples
               </div>
 
               <div className="space-y-2 text-xs font-mono">
                 <div className="flex items-center justify-between">
-                  <span className="text-[#70849c]">Market Cap</span>
+                  <span className="text-zinc-400">Market Cap</span>
                   <span className="text-white font-semibold">{marketCap}</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-[#70849c]">Trailing P/E</span>
+                  <span className="text-zinc-400">Trailing P/E</span>
                   <span className="text-white font-semibold">{peRatio}</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-[#70849c]">Forward P/E</span>
+                  <span className="text-zinc-400">Forward P/E</span>
                   <span className="text-white font-semibold">{forwardPe}</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-[#70849c]">EPS (TTM)</span>
+                  <span className="text-zinc-400">EPS (TTM)</span>
                   <span className="text-white font-semibold">{eps}</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-[#70849c]">52W Range</span>
+                  <span className="text-zinc-400">52W Range</span>
                   <span className="text-white font-semibold">{fiftyTwoHigh} / {fiftyTwoLow}</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-[#70849c]">Dividend Yield</span>
+                  <span className="text-zinc-400">Dividend Yield</span>
                   <span className="text-white font-semibold">{dividendYield}</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-[#70849c]">Beta</span>
+                  <span className="text-zinc-400">Beta</span>
                   <span className="text-white font-semibold">{beta}</span>
                 </div>
                 {analystConsensus !== "—" && (
-                  <div className="flex items-center justify-between pt-1 border-t border-[#141f2e]">
-                    <span className="text-emerald-400">Analyst Target</span>
+                  <div className="flex items-center justify-between pt-2 border-t border-white/[0.06]">
+                    <span className="text-zinc-400">Analyst Target</span>
                     <span className="text-white font-bold">{analystTarget}</span>
                   </div>
                 )}
@@ -226,31 +228,31 @@ export default function WorkspaceRightPanel({
         {/* TAB 2: Technicals & Quantitative Risk */}
         {activeTab === "Technicals" && (
           <div className="space-y-3">
-            <div className="rounded-xl border border-[#142031] bg-[#08101a] p-3 space-y-2.5 font-mono text-xs">
-              <div className="text-[9.5px] uppercase tracking-wider text-[#556980] pb-1 border-b border-[#141f2e]">
-                Technical Momentum & Volatility
+            <div className="rounded-xl border border-white/[0.08] bg-white/[0.02] p-3.5 space-y-2.5 font-mono text-xs">
+              <div className="text-[9.5px] uppercase tracking-wider text-zinc-500 pb-1.5 border-b border-white/[0.06]">
+                Technicals & Risk
               </div>
 
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <span className="text-[#70849c]">RSI (14-Day)</span>
+                  <span className="text-zinc-400">RSI (14-Day)</span>
                   <span className="text-white font-bold">{rsiValue}</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-[#70849c]">MACD Signal</span>
-                  <span className="text-emerald-400 font-bold">{macdBias}</span>
+                  <span className="text-zinc-400">MACD Bias</span>
+                  <span className="text-white font-semibold">{macdBias}</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-[#70849c]">Annual Volatility</span>
+                  <span className="text-zinc-400">Annual Volatility</span>
                   <span className="text-white font-semibold">{volatilityPct}</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-[#70849c]">1Y Max Drawdown</span>
-                  <span className="text-rose-400 font-semibold">{maxDrawdownPct}</span>
+                  <span className="text-zinc-400">1Y Max Drawdown</span>
+                  <span className="text-zinc-300 font-semibold">{maxDrawdownPct}</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-[#70849c]">Sharpe Ratio</span>
-                  <span className="text-emerald-400 font-semibold">{sharpeRatio}</span>
+                  <span className="text-zinc-400">Sharpe Ratio</span>
+                  <span className="text-white font-semibold">{sharpeRatio}</span>
                 </div>
               </div>
             </div>
@@ -260,8 +262,8 @@ export default function WorkspaceRightPanel({
         {/* TAB 3: News */}
         {activeTab === "News" && (
           <div className="space-y-2.5">
-            <div className="font-mono text-[9.5px] uppercase tracking-wider text-[#556980]">
-              Audited News Citations ({newsArticles.length})
+            <div className="font-mono text-[9.5px] uppercase tracking-wider text-zinc-500">
+              News Citations ({newsArticles.length})
             </div>
 
             {newsArticles.length > 0 ? (
@@ -269,10 +271,10 @@ export default function WorkspaceRightPanel({
                 {newsArticles.map((article, idx) => (
                   <div
                     key={idx}
-                    className="rounded-lg border border-[#152030] bg-[#080f1a] p-2.5 space-y-1 transition-colors hover:border-emerald-500/30"
+                    className="rounded-lg border border-white/[0.08] bg-white/[0.02] p-3 space-y-1 transition-all hover:border-white/20 hover:bg-white/[0.05]"
                   >
-                    <div className="flex items-center justify-between text-[9px] text-[#556980] font-mono">
-                      <span className="text-emerald-400 font-semibold">{article.source || "Financial Press"}</span>
+                    <div className="flex items-center justify-between text-[9px] text-zinc-500 font-mono">
+                      <span className="text-zinc-300 font-semibold">{article.source || "Financial Press"}</span>
                       {article.published_at && (
                         <span>{new Date(article.published_at).toLocaleDateString()}</span>
                       )}
@@ -282,7 +284,7 @@ export default function WorkspaceRightPanel({
                         href={article.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-[11.5px] font-semibold text-white hover:text-emerald-300 transition-colors line-clamp-2 block leading-snug"
+                        className="text-[11.5px] font-semibold text-white hover:text-zinc-200 transition-colors line-clamp-2 block leading-snug"
                       >
                         {article.title || "Untitled Article"} ↗
                       </a>
@@ -295,8 +297,8 @@ export default function WorkspaceRightPanel({
                 ))}
               </div>
             ) : (
-              <div className="rounded-xl border border-[#142031] bg-[#08101a] p-4 text-center">
-                <p className="text-xs text-[#70849c]">
+              <div className="rounded-xl border border-white/[0.08] bg-white/[0.02] p-4 text-center">
+                <p className="text-xs text-zinc-500">
                   {activeTurn ? "No external news items returned for this query." : "Run a query to populate headlines."}
                 </p>
               </div>
@@ -309,13 +311,13 @@ export default function WorkspaceRightPanel({
           <div className="space-y-2.5">
             {activeTurn?.thesis ? (
               <div className="space-y-2.5">
-                <div className="rounded-xl border border-emerald-500/30 bg-[#081625] p-3 space-y-1">
-                  <div className="flex items-center justify-between font-mono text-[9.5px] uppercase text-[#6f849e]">
+                <div className="rounded-xl border border-white/[0.14] bg-white/[0.03] p-3.5 space-y-1.5">
+                  <div className="flex items-center justify-between font-mono text-[9.5px] uppercase text-zinc-400">
                     <span>Consensus Verdict</span>
-                    <span className="text-emerald-400 font-bold">{activeTurn.thesis.recommendation}</span>
+                    <span className="text-white font-bold tracking-wider">{activeTurn.thesis.recommendation}</span>
                   </div>
                   {activeTurn.thesis.key_reasons?.[0] && (
-                    <p className="text-[11px] text-[#c0d2e8] leading-relaxed pt-1 border-t border-white/5">
+                    <p className="text-[11px] text-zinc-300 leading-relaxed pt-1.5 border-t border-white/[0.06]">
                       {activeTurn.thesis.key_reasons[0]}
                     </p>
                   )}
@@ -323,16 +325,16 @@ export default function WorkspaceRightPanel({
 
                 {activeTurn.debate && (
                   <div className="space-y-2">
-                    <div className="rounded-lg border border-emerald-500/20 bg-emerald-950/20 p-2.5 text-xs">
-                      <div className="font-semibold text-emerald-400 mb-1 text-[11px] font-mono">Bull Case Thesis</div>
-                      <p className="text-[11px] text-emerald-100/90 leading-relaxed">
+                    <div className="rounded-lg border border-white/[0.08] bg-white/[0.02] p-3 text-xs space-y-1">
+                      <div className="font-semibold text-white text-[11px] font-mono tracking-wide">Bull Case Synthesis</div>
+                      <p className="text-[11px] text-zinc-300 leading-relaxed">
                         {activeTurn.debate.bull_case?.summary || "Favorable market positioning."}
                       </p>
                     </div>
 
-                    <div className="rounded-lg border border-rose-500/20 bg-rose-950/20 p-2.5 text-xs">
-                      <div className="font-semibold text-rose-400 mb-1 text-[11px] font-mono">Bear Case Risks</div>
-                      <p className="text-[11px] text-rose-100/90 leading-relaxed">
+                    <div className="rounded-lg border border-white/[0.08] bg-white/[0.02] p-3 text-xs space-y-1">
+                      <div className="font-semibold text-zinc-300 text-[11px] font-mono tracking-wide">Bear Case Risks</div>
+                      <p className="text-[11px] text-zinc-400 leading-relaxed">
                         {activeTurn.debate.bear_case?.summary || "Downside risks identified."}
                       </p>
                     </div>
@@ -340,8 +342,8 @@ export default function WorkspaceRightPanel({
                 )}
               </div>
             ) : (
-              <div className="rounded-xl border border-[#142031] bg-[#08101a] p-4 text-center">
-                <p className="text-xs text-[#70849c]">
+              <div className="rounded-xl border border-white/[0.08] bg-white/[0.02] p-4 text-center">
+                <p className="text-xs text-zinc-500">
                   Run an equity analysis to populate adversarial bull vs bear scenarios.
                 </p>
               </div>
@@ -361,7 +363,7 @@ export default function WorkspaceRightPanel({
       {isOpenMobile && (
         <div className="fixed inset-0 z-40 xl:hidden">
           <div
-            className="fixed inset-0 bg-black/70 backdrop-blur-sm"
+            className="fixed inset-0 bg-black/80 backdrop-blur-md"
             onClick={onCloseMobile}
           />
           <aside className="fixed inset-y-0 right-0 w-80 z-50 shadow-2xl">

@@ -40,44 +40,44 @@ export default function WorkspaceInput({
   };
 
   return (
-    <div className="relative w-full space-y-2">
+    <div className="relative w-full space-y-2.5">
       {/* Quick Modifier Chips */}
       <div className="hidden sm:flex items-center gap-2 overflow-x-auto font-mono text-[10.5px]">
-        <span className="text-[#4f647d] text-[10px] uppercase tracking-wider shrink-0">Command Presets:</span>
+        <span className="text-zinc-500 text-[10px] uppercase tracking-wider shrink-0">Command Presets:</span>
         <button
           type="button"
           onClick={() => handleAppendMod("Compare valuation multiples and growth of")}
-          className="rounded border border-[#162335] bg-[#09111c] px-2 py-0.5 text-[#8fa2ba] hover:text-emerald-300 hover:border-emerald-500/40 transition-colors shrink-0"
+          className="rounded-lg border border-white/[0.08] bg-white/[0.03] px-2.5 py-1 text-zinc-400 hover:text-white hover:border-white/20 hover:bg-white/[0.06] transition-all shrink-0 cursor-pointer"
         >
-          + Compare
+          + Compare Multiples
         </button>
         <button
           type="button"
           onClick={() => handleAppendMod("technicals RSI MACD and moving averages for")}
-          className="rounded border border-[#162335] bg-[#09111c] px-2 py-0.5 text-[#8fa2ba] hover:text-emerald-300 hover:border-emerald-500/40 transition-colors shrink-0"
+          className="rounded-lg border border-white/[0.08] bg-white/[0.03] px-2.5 py-1 text-zinc-400 hover:text-white hover:border-white/20 hover:bg-white/[0.06] transition-all shrink-0 cursor-pointer"
         >
-          + Technicals
+          + Technicals (RSI/MACD)
         </button>
         <button
           type="button"
           onClick={() => handleAppendMod("volatility Sharpe ratio and maximum drawdown for")}
-          className="rounded border border-[#162335] bg-[#09111c] px-2 py-0.5 text-[#8fa2ba] hover:text-emerald-300 hover:border-emerald-500/40 transition-colors shrink-0"
+          className="rounded-lg border border-white/[0.08] bg-white/[0.03] px-2.5 py-1 text-zinc-400 hover:text-white hover:border-white/20 hover:bg-white/[0.06] transition-all shrink-0 cursor-pointer"
         >
-          + Quant Risk
+          + Quant Risk & Drawdown
         </button>
         <button
           type="button"
           onClick={() => handleAppendMod("financial statements balance sheet and free cash flow of")}
-          className="rounded border border-[#162335] bg-[#09111c] px-2 py-0.5 text-[#8fa2ba] hover:text-emerald-300 hover:border-emerald-500/40 transition-colors shrink-0"
+          className="rounded-lg border border-white/[0.08] bg-white/[0.03] px-2.5 py-1 text-zinc-400 hover:text-white hover:border-white/20 hover:bg-white/[0.06] transition-all shrink-0 cursor-pointer"
         >
-          + 3-Statements
+          + 3-Statement Financials
         </button>
       </div>
 
-      {/* Main Terminal Command Input */}
-      <div className="relative flex items-center gap-2.5 rounded-xl border border-[#172538] bg-[#09111c]/95 px-3.5 py-2.5 shadow-2xl shadow-black/70 backdrop-blur-xl focus-within:border-emerald-500/50 focus-within:ring-1 focus-within:ring-emerald-500/25 transition-all">
+      {/* Main Terminal Command Input — Luxury Monochromatic Glass */}
+      <div className="relative flex items-center gap-3 rounded-2xl border border-white/[0.12] bg-zinc-950/80 px-4 py-3 shadow-[0_12px_40px_rgba(0,0,0,0.85)] backdrop-blur-2xl focus-within:border-white/30 focus-within:ring-1 focus-within:ring-white/10 transition-all duration-200">
         {/* Terminal Prompt Glyph */}
-        <div className="flex h-7 items-center px-1 font-mono text-emerald-400 font-bold text-xs select-none">
+        <div className="flex items-center font-mono text-zinc-400 font-bold text-xs select-none">
           <span>›_</span>
         </div>
 
@@ -89,14 +89,18 @@ export default function WorkspaceInput({
           onChange={(e) => onChange(e.target.value)}
           onKeyDown={handleKeyDown}
           disabled={disabled}
-          placeholder={disabled ? "Multi-agent research pipeline is active… synthesizing findings" : "Enter ticker or research query (e.g., NVDA vs AMD, AAPL financial statements)..."}
-          className="flex-1 bg-transparent text-xs sm:text-sm text-white placeholder-[#50637b] focus:outline-none disabled:opacity-50 font-sans"
+          placeholder={
+            disabled
+              ? "Multi-agent research pipeline is active… synthesizing findings"
+              : "Enter ticker or research query (e.g., NVDA vs AMD, AAPL financial statements)..."
+          }
+          className="flex-1 bg-transparent text-xs sm:text-sm text-white placeholder-zinc-500 focus:outline-none disabled:opacity-50 font-sans tracking-tight"
         />
 
         {/* Enter key badge / Working state */}
         <div className="flex items-center gap-2">
           {!disabled && value.trim() && (
-            <span className="hidden sm:inline font-mono text-[10px] text-[#50637b]">
+            <span className="hidden sm:inline font-mono text-[10px] text-zinc-500">
               Press ↵
             </span>
           )}
@@ -105,16 +109,16 @@ export default function WorkspaceInput({
             type="button"
             onClick={onSubmit}
             disabled={disabled || !value.trim()}
-            className={`flex shrink-0 items-center justify-center transition-all cursor-pointer ${
+            className={`flex shrink-0 items-center justify-center transition-all duration-200 cursor-pointer ${
               disabled
-                ? "h-8 px-3 rounded-lg bg-[#111c2c] border border-amber-500/30 text-amber-300 font-mono text-xs font-semibold gap-1.5 cursor-not-allowed"
-                : "h-8 w-8 rounded-lg bg-emerald-400 text-[#060b13] shadow-md shadow-emerald-400/20 hover:bg-emerald-300 active:scale-95 disabled:opacity-20 disabled:pointer-events-none"
+                ? "h-8 px-3 rounded-xl bg-white/[0.06] border border-white/15 text-zinc-300 font-mono text-xs font-medium gap-2 cursor-not-allowed"
+                : "h-8 w-8 rounded-xl bg-white text-black hover:bg-zinc-200 shadow-[0_0_15px_rgba(255,255,255,0.15)] active:scale-95 disabled:opacity-20 disabled:pointer-events-none"
             }`}
           >
             {disabled ? (
               <>
-                <span className="h-2.5 w-2.5 animate-spin rounded-full border-2 border-amber-300 border-t-transparent" />
-                <span className="text-[11px]">Executing</span>
+                <span className="h-2.5 w-2.5 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                <span className="text-[10.5px]">Synthesizing</span>
               </>
             ) : (
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">

@@ -2,13 +2,8 @@ import type { ConversationListItem, MessageResponse, StreamEvent } from "./types
 
 export type { StreamEvent } from "./types";
 
-const configuredApiUrl = process.env.NEXT_PUBLIC_API_URL?.trim();
-
-if (!configuredApiUrl) {
-  throw new Error(
-    "NEXT_PUBLIC_API_URL is required. Set it to the deployed backend URL before starting or building the frontend.",
-  );
-}
+const configuredApiUrl =
+  process.env.NEXT_PUBLIC_API_URL?.trim() || "http://localhost:8000";
 
 export const API_BASE_URL = configuredApiUrl.replace(/\/$/, "");
 

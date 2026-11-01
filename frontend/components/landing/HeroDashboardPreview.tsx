@@ -1,236 +1,168 @@
 "use client";
 
-export default function HeroDashboardPreview() {
+interface HeroDashboardPreviewProps {
+  onLaunchTerminal?: () => void;
+}
+
+export default function HeroDashboardPreview({ onLaunchTerminal }: HeroDashboardPreviewProps) {
   return (
     <div className="relative mx-auto w-full max-w-6xl">
-      {/* Ambient background glow */}
-      <div className="pointer-events-none absolute -inset-4 rounded-3xl bg-gradient-to-r from-emerald-500/15 via-teal-500/10 to-emerald-500/15 opacity-70 blur-2xl" />
+      {/* Ambient background glow — subtle white highlight */}
+      <div className="pointer-events-none absolute -inset-4 rounded-3xl bg-white/[0.03] opacity-60 blur-2xl" />
 
-      {/* 3D Tilted Glass Container */}
-      <div className="relative overflow-hidden rounded-2xl border border-emerald-500/25 bg-[#080e18]/95 p-3 sm:p-5 shadow-2xl shadow-emerald-950/40 backdrop-blur-xl lg:rotate-1 lg:hover:rotate-0 transition-transform duration-700 ease-out">
+      {/* Terminal Glass Container */}
+      <div className="relative overflow-hidden rounded-2xl border border-white/[0.12] bg-black p-4 sm:p-6 shadow-[0_25px_70px_rgba(0,0,0,0.95)] backdrop-blur-2xl">
         {/* Top window chrome */}
-        <div className="mb-4 flex items-center justify-between border-b border-line-soft/80 pb-3">
+        <div className="mb-5 flex items-center justify-between border-b border-white/[0.08] pb-3.5">
           <div className="flex items-center gap-2">
-            <span className="h-2.5 w-2.5 rounded-full bg-red-500/80" />
-            <span className="h-2.5 w-2.5 rounded-full bg-yellow-500/80" />
-            <span className="h-2.5 w-2.5 rounded-full bg-emerald-500/80" />
-            <span className="ml-2 font-mono text-[11px] text-text-faint">rizqai-desk-session-active.internal</span>
+            <span className="h-2.5 w-2.5 rounded-full bg-white/20" />
+            <span className="h-2.5 w-2.5 rounded-full bg-white/10" />
+            <span className="h-2.5 w-2.5 rounded-full bg-white/10" />
+            <span className="ml-2 font-mono text-[11px] text-zinc-500">rizqai-terminal.equity.internal</span>
           </div>
           <div className="flex items-center gap-2">
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-0.5 font-mono text-[10px] text-emerald-400">
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse-dot" />
-              Multi-Agent Engine Online
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/[0.05] px-3 py-1 font-mono text-[10px] text-zinc-300">
+              <span className="h-1.5 w-1.5 rounded-full bg-white animate-pulse" />
+              Autonomous Engine Active
             </span>
           </div>
         </div>
 
         {/* Dashboard Content Grid */}
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
+        <div className="grid grid-cols-1 gap-5 lg:grid-cols-12 text-left">
           {/* Left Mini Sidebar */}
-          <div className="hidden lg:col-span-2 lg:flex lg:flex-col justify-between border-r border-line-soft/60 pr-3">
+          <div className="hidden lg:col-span-3 lg:flex lg:flex-col justify-between border-r border-white/[0.08] pr-4">
             <div className="space-y-4">
-              <div className="flex items-center gap-2 text-white font-medium text-xs">
-                <div className="flex h-6 w-6 items-center justify-center rounded-lg bg-emerald-500/20 text-emerald-400 text-xs">
-                  ⚡
+              <div className="flex items-center gap-2 text-white font-semibold text-xs tracking-tight">
+                <div className="flex h-6 w-6 items-center justify-center rounded-lg border border-white/20 bg-white/[0.08] text-white text-xs">
+                  ◈
                 </div>
-                RizqAI
+                RizqAI Desk
               </div>
 
               <div className="space-y-1 text-xs">
-                <div className="flex items-center gap-2 rounded-lg bg-emerald-500/15 px-2.5 py-1.5 font-medium text-emerald-300">
-                  <span>+</span> New Chat
+                <button
+                  onClick={onLaunchTerminal}
+                  className="w-full flex items-center justify-between rounded-xl bg-white text-black px-3 py-2 font-semibold text-xs shadow-sm cursor-pointer"
+                >
+                  <span>+ New Session</span>
+                  <span className="font-mono text-[10px]">⌘K</span>
+                </button>
+                <div className="flex items-center gap-2 rounded-lg px-3 py-2 text-zinc-400 font-mono text-[11px]">
+                  <span>AAPL Equity Dossier</span>
                 </div>
-                <div className="flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-text-muted">
-                  <span>💬</span> Recent Chats
+                <div className="flex items-center gap-2 rounded-lg px-3 py-2 text-zinc-500 font-mono text-[11px]">
+                  <span>NVDA vs AMD Multiples</span>
                 </div>
               </div>
             </div>
 
-            <div className="rounded-lg border border-emerald-500/20 bg-emerald-950/20 p-2.5 text-[10px] text-emerald-400">
-              <div className="font-semibold text-white">Institutional Mode</div>
-              <div>6 Specialist Agents Ready</div>
+            <div className="rounded-xl border border-white/[0.08] bg-white/[0.02] p-3 text-[10px] font-mono text-zinc-400 space-y-1">
+              <div className="font-semibold text-white">Consensus Active</div>
+              <div>6 Specialist Agent Desks</div>
             </div>
           </div>
 
           {/* Center Main Stage */}
-          <div className="lg:col-span-7 space-y-4">
-            {/* Header Greeting & Mock Search */}
-            <div className="rounded-xl border border-line-soft/80 bg-ink-raised/70 p-3.5">
-              <div className="flex items-center justify-between mb-2">
-                <div>
-                  <h4 className="text-sm font-semibold text-white">Good evening, Mohd Ali</h4>
-                  <p className="text-[11px] text-text-muted">Ask me anything about stocks, markets, or financial concepts.</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-2 rounded-lg border border-line-soft bg-[#070b12] px-3 py-1.5 text-xs text-text-muted">
-                <span className="text-emerald-400">🔍</span>
-                <span className="flex-1 text-text-muted truncate">Analyze Apple (AAPL) - valuation, bull vs bear, and final verdict</span>
-                <span className="rounded-md bg-emerald-500 px-2 py-0.5 text-[10px] font-bold text-ink">⏎</span>
+          <div className="lg:col-span-9 space-y-4">
+            {/* Mock Search Prompt */}
+            <div className="rounded-xl border border-white/[0.08] bg-white/[0.02] p-3.5">
+              <div className="flex items-center gap-2.5 rounded-lg border border-white/[0.1] bg-black px-3.5 py-2 text-xs text-white font-mono">
+                <span className="text-zinc-500">›_</span>
+                <span className="flex-1 truncate">Analyze Apple (AAPL) - valuation multiples, bull vs bear consensus, and verdict</span>
+                <span className="rounded bg-white text-black px-2 py-0.5 text-[10px] font-bold">↵</span>
               </div>
             </div>
 
             {/* AAPL Financial Snapshot Card */}
-            <div className="rounded-xl border border-line-soft bg-surface/80 p-4 space-y-3">
+            <div className="rounded-xl border border-white/[0.1] bg-white/[0.02] p-5 space-y-4">
               {/* Ticker Header */}
               <div className="flex items-start justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-line bg-ink text-white font-bold">
-                    
+                <div className="flex items-center gap-3.5">
+                  <div className="flex h-11 w-11 items-center justify-center rounded-xl border border-white/20 bg-white/[0.08] text-white font-mono font-bold text-sm">
+                    AAPL
                   </div>
                   <div>
                     <div className="flex items-center gap-2">
-                      <h3 className="font-bold text-white text-base">AAPL</h3>
-                      <span className="text-xs text-text-faint">Apple Inc.</span>
-                      <span className="rounded bg-line-soft px-1.5 py-0.5 text-[9px] text-text-muted">Technology</span>
+                      <h3 className="font-bold text-white text-base tracking-tight">Apple Inc.</h3>
+                      <span className="rounded bg-white/[0.06] border border-white/10 px-1.5 py-0.2 font-mono text-[9px] text-zinc-400">NASDAQ: AAPL</span>
                     </div>
                     <div className="flex items-baseline gap-2 mt-0.5">
-                      <span className="text-xl font-bold text-white tracking-tight">$248.50</span>
-                      <span className="rounded bg-emerald-500/15 px-1.5 py-0.5 text-[11px] font-semibold text-emerald-400">
-                        +2.36%
+                      <span className="text-2xl font-bold text-white font-mono tracking-tight">$248.50</span>
+                      <span className="text-xs font-mono font-semibold text-emerald-400">
+                        +2.36% (+$5.72)
                       </span>
                     </div>
                   </div>
                 </div>
 
-                {/* Simulated Chart Line */}
+                {/* Simulated Sparkline */}
                 <div className="w-28 sm:w-36 h-10">
                   <svg viewBox="0 0 100 40" className="w-full h-full overflow-visible">
-                    <defs>
-                      <linearGradient id="chartGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-                        <stop offset="0%" stopColor="#10b981" stopOpacity="0.3" />
-                        <stop offset="100%" stopColor="#10b981" stopOpacity="0.0" />
-                      </linearGradient>
-                    </defs>
-                    <path
-                      d="M0,35 Q20,38 35,22 T65,18 T100,6 L100,40 L0,40 Z"
-                      fill="url(#chartGrad)"
-                    />
-                    <path
-                      d="M0,35 Q20,38 35,22 T65,18 T100,6"
+                    <polyline
                       fill="none"
-                      stroke="#10b981"
-                      strokeWidth="2.5"
+                      stroke="#ffffff"
+                      strokeWidth="2"
+                      points="0,32 20,28 35,30 50,22 65,24 80,14 100,8"
                     />
                   </svg>
                 </div>
               </div>
 
-              {/* Navigation Tabs */}
-              <div className="flex gap-4 border-b border-line-soft/60 pb-1.5 text-[11px] font-medium text-text-muted">
-                <span className="text-emerald-400 border-b-2 border-emerald-400 pb-1 font-semibold">Overview</span>
-                <span className="hover:text-text cursor-pointer">News</span>
-                <span className="hover:text-text cursor-pointer">Financials</span>
-                <span className="hover:text-text cursor-pointer">Multi-Agent Analysis</span>
-              </div>
-
-              {/* Key Fundamentals Grid */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1 font-mono">
-                <div className="rounded-lg bg-ink/70 p-2 border border-line-soft/50">
-                  <div className="text-[10px] text-text-faint">Market Cap</div>
-                  <div className="text-xs font-semibold text-white">$795.4B</div>
+              {/* Multiples Row */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 font-mono text-xs">
+                <div className="rounded-lg border border-white/[0.06] bg-white/[0.02] p-2.5">
+                  <div className="text-[10px] text-zinc-500 uppercase">Market Cap</div>
+                  <div className="text-sm font-bold text-white mt-0.5">$3.78T</div>
                 </div>
-                <div className="rounded-lg bg-ink/70 p-2 border border-line-soft/50">
-                  <div className="text-[10px] text-text-faint">P/E Ratio</div>
-                  <div className="text-xs font-semibold text-white">65.3</div>
+                <div className="rounded-lg border border-white/[0.06] bg-white/[0.02] p-2.5">
+                  <div className="text-[10px] text-zinc-500 uppercase">Trailing P/E</div>
+                  <div className="text-sm font-bold text-white mt-0.5">34.2x</div>
                 </div>
-                <div className="rounded-lg bg-ink/70 p-2 border border-line-soft/50">
-                  <div className="text-[10px] text-text-faint">52W Range</div>
-                  <div className="text-xs font-semibold text-white">$138.8 - $408.5</div>
+                <div className="rounded-lg border border-white/[0.06] bg-white/[0.02] p-2.5">
+                  <div className="text-[10px] text-zinc-500 uppercase">Sharpe Ratio</div>
+                  <div className="text-sm font-bold text-white mt-0.5">1.68</div>
                 </div>
-                <div className="rounded-lg bg-ink/70 p-2 border border-line-soft/50">
-                  <div className="text-[10px] text-text-faint">Dividend Yield</div>
-                  <div className="text-xs font-semibold text-white">0.52%</div>
+                <div className="rounded-lg border border-white/[0.06] bg-white/[0.02] p-2.5">
+                  <div className="text-[10px] text-zinc-500 uppercase">1Y Drawdown</div>
+                  <div className="text-sm font-bold text-zinc-300 mt-0.5">-9.4%</div>
                 </div>
               </div>
 
-              {/* Multi-Agent Synthesis Cards */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-2">
-                {/* Bull Case */}
-                <div className="rounded-lg border border-emerald-500/20 bg-emerald-950/20 p-2.5">
-                  <div className="flex items-center gap-1.5 text-emerald-400 font-semibold text-[11px] mb-1">
-                    <span>🟢</span> Bull Case
+              {/* Adversarial Consensus Mini-Preview */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+                <div className="rounded-xl border border-white/[0.08] bg-white/[0.02] p-3 text-xs space-y-1">
+                  <div className="flex items-center justify-between font-mono text-[10px] text-zinc-300 font-semibold">
+                    <span>▲ BULL THESIS</span>
+                    <span className="text-[9px] text-zinc-500">SERVICES + AI MOAT</span>
                   </div>
-                  <p className="text-[11px] leading-snug text-emerald-100/90">
-                    Strong product pipeline, growing services margin, and generative AI ecosystem expansion.
+                  <p className="text-[11.5px] text-zinc-400 leading-relaxed">
+                    Services revenue acceleration and high-margin recurring subscriptions mitigate cyclical hardware upgrade fluctuations.
                   </p>
                 </div>
 
-                {/* Bear Case */}
-                <div className="rounded-lg border border-bear/25 bg-bear-soft/30 p-2.5">
-                  <div className="flex items-center gap-1.5 text-bear font-semibold text-[11px] mb-1">
-                    <span>🔴</span> Bear Case
+                <div className="rounded-xl border border-white/[0.08] bg-white/[0.02] p-3 text-xs space-y-1">
+                  <div className="flex items-center justify-between font-mono text-[10px] text-zinc-400 font-semibold">
+                    <span>▼ BEAR RISKS</span>
+                    <span className="text-[9px] text-zinc-500">VALUATION PREMIUM</span>
                   </div>
-                  <p className="text-[11px] leading-snug text-rose-100/90">
-                    High valuation multiple, China market headwind risks, and antitrust regulatory scrutiny.
+                  <p className="text-[11.5px] text-zinc-400 leading-relaxed">
+                    Trading at 34x trailing earnings leaves limited safety margin against potential Greater China softness or antitrust rulings.
                   </p>
                 </div>
+              </div>
 
-                {/* Thesis / Verdict */}
-                <div className="rounded-lg border border-gold/30 bg-gold-soft/20 p-2.5 flex flex-col justify-between">
-                  <div>
-                    <div className="flex items-center justify-between text-[11px] text-gold font-semibold mb-1">
-                      <span>Investment Thesis</span>
-                      <span className="font-mono text-[10px] bg-gold/15 px-1 rounded">Conf. 72%</span>
-                    </div>
-                    <div className="text-base font-extrabold text-white">
-                      BUY <span className="text-[10px] font-normal text-text-muted">/ Long Term</span>
-                    </div>
+              {/* Executive Verdict Stamp Banner */}
+              <div className="rounded-xl border border-white/[0.14] bg-white/[0.03] p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="space-y-0.5">
+                  <div className="text-[10px] font-mono text-zinc-500 uppercase tracking-wider">Multi-Agent Final Verdict</div>
+                  <div className="text-xs sm:text-sm font-semibold text-white tracking-tight">
+                    BUY · Resilient Capital Return & Services Margin Expansion
                   </div>
-                  <div className="text-[9px] text-text-faint mt-1">Multi-Agent Consensus</div>
                 </div>
-              </div>
-            </div>
-          </div>
 
-          {/* Right Live Market & News Column */}
-          <div className="lg:col-span-3 space-y-3">
-            {/* Live Market Watch */}
-            <div className="rounded-xl border border-line-soft bg-surface/70 p-3 space-y-2">
-              <div className="flex items-center justify-between font-mono text-[11px] text-text-faint uppercase tracking-wider pb-1 border-b border-line-soft/50">
-                <span>Live Market Data</span>
-                <span className="text-emerald-400">● Live</span>
-              </div>
-              <div className="space-y-1.5 font-mono text-xs">
-                <div className="flex items-center justify-between">
-                  <span className="text-white font-medium">Apple (AAPL)</span>
-                  <span className="text-emerald-400 font-semibold">248.50 +2.36%</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-text-muted">Tesla (TSLA)</span>
-                  <span className="text-emerald-400 font-semibold">795.40 +1.24%</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-text-muted">Microsoft (MSFT)</span>
-                  <span className="text-emerald-400 font-semibold">420.17 +0.86%</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-text-muted">NVIDIA (NVDA)</span>
-                  <span className="text-emerald-400 font-semibold">135.62 +2.17%</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-text-muted">Amazon (AMZN)</span>
-                  <span className="text-emerald-400 font-semibold">178.24 +1.32%</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Recent Verified News */}
-            <div className="rounded-xl border border-line-soft bg-surface/70 p-3 space-y-2">
-              <div className="font-mono text-[11px] text-text-faint uppercase tracking-wider pb-1 border-b border-line-soft/50">
-                Recent Catalyst News
-              </div>
-              <div className="space-y-2 text-[11px]">
-                <div className="rounded bg-ink/50 p-1.5 border border-line-soft/40">
-                  <p className="text-text font-medium leading-snug">Apple unveils new AI features at WWDC conference</p>
-                  <span className="text-[10px] text-text-faint">2h ago · Reuters</span>
-                </div>
-                <div className="rounded bg-ink/50 p-1.5 border border-line-soft/40">
-                  <p className="text-text font-medium leading-snug">Tesla reports higher-than-expected Q1 revenue</p>
-                  <span className="text-[10px] text-text-faint">4h ago · Bloomberg</span>
-                </div>
-                <div className="rounded bg-ink/50 p-1.5 border border-line-soft/40">
-                  <p className="text-text font-medium leading-snug">Markets rally as core inflation cools down</p>
-                  <span className="text-[10px] text-text-faint">6h ago · CNBC</span>
+                <div className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-white/20 bg-white/[0.08] px-4 py-1.5 font-mono text-sm font-black tracking-wider text-white">
+                  <span>STRONG BUY</span>
                 </div>
               </div>
             </div>

@@ -313,39 +313,13 @@ export default function WorkspaceCard({ turn }: WorkspaceCardProps) {
       }
     }
     if (recommendation === "BUY") {
-      return "Favorable risk-reward profile backed by durable competitive moats and sustained upside momentum.";
+      return "Durable competitive advantages and sustained margin expansion support a positive equity thesis.";
     }
     if (recommendation === "SELL") {
-      return "Heightened downside vulnerabilities and compressed margins outweigh near-term valuation upside.";
+      return "Heightened downside vulnerabilities and valuation multiples exceed risk-adjusted growth assumptions.";
     }
-    return "Balanced risk-reward profile; maintaining disciplined hold while awaiting clearer inflection catalysts.";
+    return "Balanced risk-reward profile; maintaining disciplined monitoring while awaiting clearer valuation catalysts.";
   }, [turn.thesis, recommendation]);
-
-  let verdictSubtitle = "AGGREGATED MULTI-AGENT CONSENSUS";
-  let verdictIcon = "■";
-  let verdictContainerStyle = "border-[#1e2e46] bg-gradient-to-br from-[#0c1828] via-[#09121f] to-[#060c15]";
-  let verdictBadgeStyle = "border-amber-400 bg-amber-500/20 text-amber-300 drop-shadow-[0_0_20px_rgba(245,158,11,0.3)]";
-  let verdictGlowColor = "rgba(245, 158, 11, 0.15)";
-
-  if (recommendation === "BUY") {
-    verdictSubtitle = "BULLISH OUTLOOK · ACCUMULATE POSITION";
-    verdictIcon = "▲";
-    verdictContainerStyle = "border-emerald-500/40 bg-gradient-to-br from-emerald-950/30 via-[#081521] to-[#050e17] shadow-emerald-950/20";
-    verdictBadgeStyle = "border-emerald-400 bg-emerald-500/25 text-emerald-300 drop-shadow-[0_0_20px_rgba(16,185,129,0.35)]";
-    verdictGlowColor = "rgba(16, 185, 129, 0.2)";
-  } else if (recommendation === "SELL") {
-    verdictSubtitle = "BEARISH OUTLOOK · REDUCE / HEDGE EXPOSURE";
-    verdictIcon = "▼";
-    verdictContainerStyle = "border-rose-500/40 bg-gradient-to-br from-rose-950/30 via-[#180b13] to-[#0d060a] shadow-rose-950/20";
-    verdictBadgeStyle = "border-rose-400 bg-rose-500/25 text-rose-300 drop-shadow-[0_0_20px_rgba(244,63,94,0.35)]";
-    verdictGlowColor = "rgba(244, 63, 94, 0.2)";
-  } else if (recommendation === "HOLD" || recommendation === "WATCH") {
-    verdictSubtitle = "NEUTRAL STANCE · MAINTAIN DISCIPLINED HOLD";
-    verdictIcon = "■";
-    verdictContainerStyle = "border-amber-500/40 bg-gradient-to-br from-amber-950/25 via-[#13110d] to-[#080b12] shadow-amber-950/20";
-    verdictBadgeStyle = "border-amber-400 bg-amber-500/20 text-amber-300 drop-shadow-[0_0_20px_rgba(245,158,11,0.3)]";
-    verdictGlowColor = "rgba(245, 158, 11, 0.15)";
-  }
 
   const opportunities = turn.thesis?.key_reasons?.length
     ? turn.thesis.key_reasons
@@ -372,64 +346,64 @@ ${thesisNarrative ? `\nThesis:\n${thesisNarrative}` : ""}`;
   };
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-4">
       {/* Live Generating Output Top Alert Banner */}
       {isStreaming && (
-        <div className="flex items-center justify-between rounded-xl border border-amber-500/40 bg-gradient-to-r from-amber-500/15 via-[#0b1626] to-amber-500/10 px-4 py-2.5 shadow-lg shadow-amber-950/20 backdrop-blur-md">
+        <div className="flex items-center justify-between rounded-xl border border-white/20 bg-white/[0.04] px-4 py-3 shadow-xl backdrop-blur-md">
           <div className="flex items-center gap-3">
-            <span className="relative flex h-2.5 w-2.5">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-amber-400 opacity-75" />
-              <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-amber-500" />
+            <span className="relative flex h-2 w-2">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-white opacity-60" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-white" />
             </span>
             <div className="flex items-center gap-2 font-mono text-xs">
-              <span className="font-bold uppercase tracking-wider text-amber-300">
-                ACTIVE RESEARCH
+              <span className="font-bold uppercase tracking-wider text-white">
+                ACTIVE PIPELINE
               </span>
-              <span className="text-[#3b4d66]">|</span>
-              <span className="text-[#a1b3c9]">
-                {activeWorkingCopy?.text || "Multi-agent engine actively generating research…"}
+              <span className="text-zinc-600">|</span>
+              <span className="text-zinc-300">
+                {activeWorkingCopy?.text || "Synthesizing research nodes…"}
               </span>
             </div>
           </div>
 
-          <div className="flex items-center gap-1.5 font-mono text-xs text-amber-400">
-            <span className="animate-bounce">●</span>
-            <span className="animate-bounce [animation-delay:0.15s]">●</span>
-            <span className="animate-bounce [animation-delay:0.3s]">●</span>
+          <div className="flex items-center gap-1 font-mono text-xs text-zinc-400">
+            <span className="animate-pulse">●</span>
+            <span className="animate-pulse [animation-delay:0.2s]">●</span>
+            <span className="animate-pulse [animation-delay:0.4s]">●</span>
           </div>
         </div>
       )}
 
-      {/* Main Dossier Container */}
-      <div className="overflow-hidden rounded-2xl border border-[#162335] bg-[#08101a] p-4 sm:p-6 shadow-2xl space-y-4">
+      {/* Main Dossier Container — Pure Black Luxury Card */}
+      <div className="overflow-hidden rounded-2xl border border-white/[0.1] bg-black p-5 sm:p-7 shadow-2xl space-y-5">
         
         {/* Header Bar: Pipeline Breadcrumbs + Action Buttons */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#141f2e] pb-3">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/[0.08] pb-4">
           {/* Pipeline Breadcrumbs */}
-          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 font-mono text-[10.5px] tracking-[0.14em]">
+          <div className="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0 font-mono text-[10.5px] tracking-[0.16em]">
             {pipelineSteps.map((step, idx) => {
               const isStepDone = step.status === "done";
               const isStepActive = step.status === "active";
 
               return (
-                <div key={step.key} className="flex shrink-0 items-center gap-1.5">
-                  {idx > 0 && <span className="h-px w-3 shrink-0 bg-[#223145]" />}
+                <div key={step.key} className="flex shrink-0 items-center gap-2">
+                  {idx > 0 && <span className="h-px w-3 shrink-0 bg-white/10" />}
                   
                   {isStepDone ? (
-                    <span className="flex h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-400" />
+                    <span className="flex h-1.5 w-1.5 shrink-0 rounded-full bg-white" />
                   ) : isStepActive ? (
-                    <span className="flex h-1.5 w-1.5 shrink-0 rounded-full bg-amber-400 animate-pulse" />
+                    <span className="flex h-1.5 w-1.5 shrink-0 rounded-full bg-white animate-ping" />
                   ) : (
-                    <span className="flex h-1.5 w-1.5 shrink-0 rounded-full border border-[#48576e] bg-transparent" />
+                    <span className="flex h-1.5 w-1.5 shrink-0 rounded-full border border-zinc-600 bg-transparent" />
                   )}
 
                   <span
                     className={
                       isStepDone
-                        ? "text-emerald-400 font-semibold"
+                        ? "text-white font-medium"
                         : isStepActive
-                        ? "text-amber-400 font-bold drop-shadow-[0_0_8px_rgba(245,158,11,0.5)]"
-                        : "text-[#5b6c84]"
+                        ? "text-white font-bold"
+                        : "text-zinc-600"
                     }
                   >
                     {step.label}
@@ -442,20 +416,20 @@ ${thesisNarrative ? `\nThesis:\n${thesisNarrative}` : ""}`;
           {/* Quick Action Controls */}
           <div className="flex items-center gap-2">
             {companySymbol && (
-              <span className="rounded bg-emerald-500/10 border border-emerald-500/25 px-2 py-0.5 font-mono text-[10px] font-bold text-emerald-300 uppercase">
+              <span className="rounded-md bg-white/[0.08] border border-white/[0.15] px-2 py-0.5 font-mono text-[10px] font-bold text-zinc-200 uppercase">
                 {companySymbol}
               </span>
             )}
 
             <button
               onClick={handleCopySummary}
-              className="flex items-center gap-1 rounded-lg border border-[#1c2c40] bg-[#0d1726] px-2.5 py-1 text-[11px] font-mono text-[#8fa2ba] hover:text-white hover:border-emerald-500/40 transition-colors cursor-pointer"
+              className="flex items-center gap-1.5 rounded-lg border border-white/[0.08] bg-white/[0.03] px-2.5 py-1 text-[11px] font-mono text-zinc-400 hover:text-white hover:border-white/20 transition-all cursor-pointer"
               title="Copy executive brief"
             >
               {copied ? (
                 <>
-                  <span className="text-emerald-400">✓</span>
-                  <span className="text-emerald-400 font-semibold">Copied</span>
+                  <span className="text-white">✓</span>
+                  <span className="text-white font-medium">Copied</span>
                 </>
               ) : (
                 <>
@@ -468,7 +442,7 @@ ${thesisNarrative ? `\nThesis:\n${thesisNarrative}` : ""}`;
             {events.length > 0 && (
               <button
                 onClick={() => setFlowOpen(!flowOpen)}
-                className="flex items-center gap-1 rounded-lg border border-[#1c2c40] bg-[#0d1726] px-2.5 py-1 text-[11px] font-mono text-[#8fa2ba] hover:text-amber-400 hover:border-amber-500/40 transition-colors cursor-pointer"
+                className="flex items-center gap-1.5 rounded-lg border border-white/[0.08] bg-white/[0.03] px-2.5 py-1 text-[11px] font-mono text-zinc-400 hover:text-white hover:border-white/20 transition-all cursor-pointer"
               >
                 <span>⚡</span>
                 <span>{flowOpen ? "Hide Log" : "Audit Log"}</span>
@@ -479,40 +453,40 @@ ${thesisNarrative ? `\nThesis:\n${thesisNarrative}` : ""}`;
 
         {/* Collapsible Execution Stream Log */}
         {flowOpen && events.length > 0 && (
-          <div className="rounded-xl border border-[#1b273c] bg-[#050b13] p-3 font-mono text-[11px] leading-relaxed space-y-1.5 max-h-56 overflow-y-auto">
-            <div className="text-[10px] uppercase tracking-wider text-[#52657e] pb-1 border-b border-[#131f2f]">
-              Agent Execution Telemetry ({events.length} events)
+          <div className="rounded-xl border border-white/[0.08] bg-zinc-950 p-4 font-mono text-[11px] leading-relaxed space-y-2 max-h-60 overflow-y-auto">
+            <div className="text-[10px] uppercase tracking-wider text-zinc-500 pb-1.5 border-b border-white/[0.06]">
+              Execution Telemetry ({events.length} events recorded)
             </div>
             {events.map((evt) => {
               const dateStr = new Date(evt.timestamp).toLocaleTimeString("en-GB", { hour12: false });
               return (
-                <div key={evt.id} className="flex items-start gap-2 text-[#7f93ac]">
-                  <span className="shrink-0 text-emerald-400 font-bold">✓</span>
-                  <span className="shrink-0 text-[#495b74]">{dateStr}</span>
-                  <span className="shrink-0 text-amber-300 font-medium">{evt.node}</span>
-                  <span className="min-w-0 flex-1 text-[#9fb1c8] break-words">{evt.summary}</span>
+                <div key={evt.id} className="flex items-start gap-2.5 text-zinc-400">
+                  <span className="shrink-0 text-white font-bold">✓</span>
+                  <span className="shrink-0 text-zinc-600">{dateStr}</span>
+                  <span className="shrink-0 text-zinc-300 font-medium">{evt.node}</span>
+                  <span className="min-w-0 flex-1 text-zinc-300 break-words">{evt.summary}</span>
                 </div>
               );
             })}
           </div>
         )}
 
-        {/* General Finance Answer (if applicable) */}
+        {/* General Finance Briefing (if applicable) */}
         {turn.generalFinance && (
-          <div className="rounded-xl border border-[#18263a] bg-[#091321] p-4 sm:p-5 space-y-3">
-            <div className="text-xs font-mono uppercase tracking-wider text-emerald-400 font-bold">
-              Institutional Market Briefing · {turn.generalFinance.mode.replace("_", " ")}
+          <div className="rounded-xl border border-white/[0.1] bg-white/[0.02] p-5 space-y-3">
+            <div className="text-xs font-mono uppercase tracking-wider text-zinc-400 font-bold">
+              Market Synthesis · {turn.generalFinance.mode.replace("_", " ")}
             </div>
-            <div className="text-sm text-text leading-relaxed whitespace-pre-line">
+            <div className="text-sm text-zinc-200 leading-relaxed whitespace-pre-line">
               {turn.generalFinance.answer}
             </div>
             {turn.generalFinance.key_points && turn.generalFinance.key_points.length > 0 && (
-              <div className="rounded-lg border border-emerald-500/20 bg-[#06101c] p-3 space-y-1.5">
-                <div className="text-xs font-semibold text-emerald-400 font-mono">CORE TAKEAWAYS</div>
-                <ul className="space-y-1 text-xs text-[#a0b2c9]">
+              <div className="rounded-lg border border-white/[0.08] bg-white/[0.02] p-3.5 space-y-2">
+                <div className="text-xs font-semibold text-white font-mono uppercase tracking-wide">Takeaways</div>
+                <ul className="space-y-1.5 text-xs text-zinc-400">
                   {turn.generalFinance.key_points.map((pt, i) => (
                     <li key={i} className="flex items-start gap-2">
-                      <span className="text-emerald-400">•</span>
+                      <span className="text-white">•</span>
                       <span>{pt}</span>
                     </li>
                   ))}
@@ -524,100 +498,56 @@ ${thesisNarrative ? `\nThesis:\n${thesisNarrative}` : ""}`;
 
         {/* Comprehensive Institutional Equity Analysis Dossier */}
         {(turn.thesis || turn.research || turn.risks || turn.debate) && (
-          <div className="space-y-4">
+          <div className="space-y-5">
             {/* Interactive Dossier Section Switcher Tabs */}
-            <div className="flex items-center gap-1 overflow-x-auto border-b border-[#152030] pb-2 font-mono text-xs">
-              <button
-                onClick={() => setActiveDossierTab("full")}
-                className={`px-3 py-1.5 rounded-lg transition-colors cursor-pointer font-medium ${
-                  activeDossierTab === "full"
-                    ? "bg-emerald-500/15 text-emerald-300 border border-emerald-500/30"
-                    : "text-[#7f93ac] hover:text-white hover:bg-[#0c1624]"
-                }`}
-              >
-                Full Dossier
-              </button>
-              <button
-                onClick={() => setActiveDossierTab("verdict")}
-                className={`px-3 py-1.5 rounded-lg transition-colors cursor-pointer font-medium ${
-                  activeDossierTab === "verdict"
-                    ? "bg-emerald-500/15 text-emerald-300 border border-emerald-500/30"
-                    : "text-[#7f93ac] hover:text-white hover:bg-[#0c1624]"
-                }`}
-              >
-                Verdict & Thesis
-              </button>
-              <button
-                onClick={() => setActiveDossierTab("technicals")}
-                className={`px-3 py-1.5 rounded-lg transition-colors cursor-pointer font-medium ${
-                  activeDossierTab === "technicals"
-                    ? "bg-emerald-500/15 text-emerald-300 border border-emerald-500/30"
-                    : "text-[#7f93ac] hover:text-white hover:bg-[#0c1624]"
-                }`}
-              >
-                Chart & Technicals
-              </button>
-              <button
-                onClick={() => setActiveDossierTab("debate")}
-                className={`px-3 py-1.5 rounded-lg transition-colors cursor-pointer font-medium ${
-                  activeDossierTab === "debate"
-                    ? "bg-emerald-500/15 text-emerald-300 border border-emerald-500/30"
-                    : "text-[#7f93ac] hover:text-white hover:bg-[#0c1624]"
-                }`}
-              >
-                Bull vs Bear
-              </button>
-              <button
-                onClick={() => setActiveDossierTab("risk")}
-                className={`px-3 py-1.5 rounded-lg transition-colors cursor-pointer font-medium ${
-                  activeDossierTab === "risk"
-                    ? "bg-emerald-500/15 text-emerald-300 border border-emerald-500/30"
-                    : "text-[#7f93ac] hover:text-white hover:bg-[#0c1624]"
-                }`}
-              >
-                Risk & Metrics
-              </button>
-              <button
-                onClick={() => setActiveDossierTab("sources")}
-                className={`px-3 py-1.5 rounded-lg transition-colors cursor-pointer font-medium ${
-                  activeDossierTab === "sources"
-                    ? "bg-emerald-500/15 text-emerald-300 border border-emerald-500/30"
-                    : "text-[#7f93ac] hover:text-white hover:bg-[#0c1624]"
-                }`}
-              >
-                Sources & Citations
-              </button>
+            <div className="flex items-center gap-1.5 overflow-x-auto border-b border-white/[0.08] pb-2 font-mono text-xs">
+              {(
+                [
+                  { id: "full", label: "Full Dossier" },
+                  { id: "verdict", label: "Verdict & Thesis" },
+                  { id: "technicals", label: "Technicals & Chart" },
+                  { id: "debate", label: "Bull vs Bear" },
+                  { id: "risk", label: "Quant Risk" },
+                  { id: "sources", label: "Citations" },
+                ] as const
+              ).map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveDossierTab(tab.id)}
+                  className={`px-3 py-1.5 rounded-lg transition-all duration-150 cursor-pointer text-xs ${
+                    activeDossierTab === tab.id
+                      ? "bg-white text-black font-semibold shadow-sm"
+                      : "text-zinc-400 hover:text-white hover:bg-white/[0.05]"
+                  }`}
+                >
+                  {tab.label}
+                </button>
+              ))}
             </div>
 
-            {/* TAB 1: Executive Verdict Hero Card with One-Line Rationale */}
+            {/* Executive Verdict Hero Card with One-Line Rationale */}
             {(activeDossierTab === "full" || activeDossierTab === "verdict") && (
-              <div className={`relative overflow-hidden rounded-2xl border p-5 sm:p-6 shadow-2xl transition-all ${verdictContainerStyle}`}>
-                <div 
-                  className="pointer-events-none absolute -right-12 -top-12 h-56 w-56 rounded-full blur-3xl opacity-30" 
-                  style={{ background: verdictGlowColor }} 
-                />
-
-                <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-5">
-                  <div className="space-y-3 flex-1 min-w-0">
-                    <div className="flex items-center gap-2 font-mono text-[10.5px] font-bold uppercase tracking-[0.2em] text-[#8fa2ba]">
-                      <span>🏛️ Institutional Consensus</span>
-                      <span className="h-1 w-1 rounded-full bg-[#3e5068]" />
-                      <span className="text-emerald-400 font-semibold">{companySymbol?.toUpperCase() || "TARGET EQUITY"}</span>
+              <div className="relative overflow-hidden rounded-2xl border border-white/[0.14] bg-gradient-to-b from-white/[0.05] via-white/[0.02] to-transparent p-6 sm:p-7 shadow-2xl">
+                <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+                  <div className="space-y-3.5 flex-1 min-w-0">
+                    <div className="flex items-center gap-2 font-mono text-[10.5px] font-bold uppercase tracking-[0.2em] text-zinc-400">
+                      <span>Institutional Consensus</span>
+                      <span className="h-1 w-1 rounded-full bg-zinc-600" />
+                      <span className="text-white font-semibold">{companySymbol?.toUpperCase() || "EQUITY REPORT"}</span>
                     </div>
 
                     <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6">
-                      <div className={`inline-flex shrink-0 items-center gap-2.5 rounded-2xl border-2 px-6 py-2.5 text-2xl sm:text-3xl font-black font-mono tracking-wider shadow-xl ${verdictBadgeStyle}`}>
-                        <span className="text-xl sm:text-2xl">{verdictIcon}</span>
+                      <div className="inline-flex shrink-0 items-center gap-2 rounded-xl border border-white/20 bg-white/[0.08] px-5 py-2.5 text-2xl sm:text-3xl font-black font-mono tracking-wider text-white shadow-xl">
                         <span>{recommendation}</span>
                       </div>
 
-                      <div className="flex-1 min-w-0 space-y-1 sm:border-l sm:border-white/10 sm:pl-5">
-                        <div className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.16em] text-emerald-400 font-semibold">
-                          <span>WHY: ONE-LINE RATIONALE</span>
-                          <span className="text-white/20">•</span>
-                          <span className="text-[#8fa2ba]">{verdictSubtitle}</span>
+                      <div className="flex-1 min-w-0 space-y-1.5 sm:border-l sm:border-white/10 sm:pl-6">
+                        <div className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.16em] text-zinc-400 font-medium">
+                          <span>Rationale</span>
+                          <span className="text-zinc-600">•</span>
+                          <span>Multi-Agent Consensus</span>
                         </div>
-                        <p className="text-sm sm:text-[14.5px] font-semibold text-white leading-snug">
+                        <p className="text-sm sm:text-base font-semibold text-white leading-snug tracking-tight">
                           {verdictReason}
                         </p>
                       </div>
@@ -626,11 +556,11 @@ ${thesisNarrative ? `\nThesis:\n${thesisNarrative}` : ""}`;
                 </div>
 
                 {thesisNarrative && (
-                  <div className="relative z-10 space-y-1.5 pt-4 mt-4 border-t border-white/10">
-                    <h4 className="text-xs font-mono font-semibold uppercase tracking-wider text-[#9fb2c8]">
-                      Comprehensive Investment Thesis
+                  <div className="relative z-10 space-y-2 pt-5 mt-5 border-t border-white/10">
+                    <h4 className="text-xs font-mono font-semibold uppercase tracking-wider text-zinc-400">
+                      Investment Thesis Details
                     </h4>
-                    <p className="text-xs sm:text-[13px] leading-relaxed text-[#c3d3e7]">
+                    <p className="text-xs sm:text-sm leading-relaxed text-zinc-300">
                       {thesisNarrative}
                     </p>
                   </div>
@@ -640,55 +570,55 @@ ${thesisNarrative ? `\nThesis:\n${thesisNarrative}` : ""}`;
 
             {/* Live Fundamentals Stats Strip */}
             {(activeDossierTab === "full" || activeDossierTab === "verdict") && (
-              <div className="grid grid-cols-2 sm:grid-cols-5 gap-2.5 rounded-xl border border-[#142132] bg-[#060c15] p-3 text-xs font-mono shadow-md">
+              <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 rounded-xl border border-white/[0.08] bg-white/[0.02] p-4 text-xs font-mono shadow-md">
                 <div>
-                  <div className="text-[10px] text-[#556980] uppercase tracking-wider">Price</div>
-                  <div className="text-sm sm:text-base font-bold text-white mt-0.5">
-                    {price} {priceDelta && <span className="text-[10px] text-emerald-400 font-normal ml-1">{priceDelta}</span>}
+                  <div className="text-[10px] text-zinc-500 uppercase tracking-wider">Price</div>
+                  <div className="text-sm sm:text-base font-bold text-white mt-1">
+                    {price} {priceDelta && <span className="text-[10px] text-zinc-300 font-normal ml-1">({priceDelta})</span>}
                   </div>
                 </div>
                 <div>
-                  <div className="text-[10px] text-[#556980] uppercase tracking-wider">Market Cap</div>
-                  <div className="text-sm sm:text-base font-bold text-white mt-0.5">{marketCap}</div>
+                  <div className="text-[10px] text-zinc-500 uppercase tracking-wider">Market Cap</div>
+                  <div className="text-sm sm:text-base font-bold text-white mt-1">{marketCap}</div>
                 </div>
                 <div>
-                  <div className="text-[10px] text-[#556980] uppercase tracking-wider">Trailing P/E</div>
-                  <div className="text-sm sm:text-base font-bold text-white mt-0.5">{peRatio}</div>
+                  <div className="text-[10px] text-zinc-500 uppercase tracking-wider">Trailing P/E</div>
+                  <div className="text-sm sm:text-base font-bold text-white mt-1">{peRatio}</div>
                 </div>
                 <div>
-                  <div className="text-[10px] text-[#556980] uppercase tracking-wider">52W Range</div>
-                  <div className="text-sm sm:text-base font-bold text-white mt-0.5">{fiftyTwoRange}</div>
+                  <div className="text-[10px] text-zinc-500 uppercase tracking-wider">52W Range</div>
+                  <div className="text-sm sm:text-base font-bold text-white mt-1">{fiftyTwoRange}</div>
                 </div>
                 <div>
-                  <div className="text-[10px] text-[#556980] uppercase tracking-wider">Dividend Yield</div>
-                  <div className="text-sm sm:text-base font-bold text-white mt-0.5">{dividendYield}</div>
+                  <div className="text-[10px] text-zinc-500 uppercase tracking-wider">Dividend Yield</div>
+                  <div className="text-sm sm:text-base font-bold text-white mt-1">{dividendYield}</div>
                 </div>
               </div>
             )}
 
             {/* TAB 2: Interactive Candlestick Chart & Technicals */}
             {(activeDossierTab === "full" || activeDossierTab === "technicals") && companySymbol && (
-              <div className="space-y-3">
+              <div className="space-y-3.5">
                 <CandlestickChart symbol={companySymbol} />
 
                 {technicalSummary && (
-                  <div className="grid grid-cols-3 gap-2.5 rounded-xl border border-[#142132] bg-[#060c15] p-3 text-xs font-mono">
+                  <div className="grid grid-cols-3 gap-3 rounded-xl border border-white/[0.08] bg-white/[0.02] p-4 text-xs font-mono">
                     <div>
-                      <span className="text-[10px] text-[#556980] uppercase">RSI (14)</span>
-                      <div className="text-sm font-bold text-white mt-0.5">
+                      <span className="text-[10px] text-zinc-500 uppercase">RSI (14)</span>
+                      <div className="text-sm sm:text-base font-bold text-white mt-1">
                         {technicalSummary.rsi ? technicalSummary.rsi.toFixed(1) : "—"}
                       </div>
                     </div>
                     <div>
-                      <span className="text-[10px] text-[#556980] uppercase">MACD Bias</span>
-                      <div className="text-sm font-bold text-emerald-400 mt-0.5">
+                      <span className="text-[10px] text-zinc-500 uppercase">MACD Bias</span>
+                      <div className="text-sm sm:text-base font-bold text-zinc-200 mt-1">
                         {technicalSummary.macd_bias || "NEUTRAL"}
                       </div>
                     </div>
                     <div>
-                      <span className="text-[10px] text-[#556980] uppercase">Composite Trend</span>
-                      <div className="text-sm font-bold text-white mt-0.5">
-                        {technicalSummary.trend || "BULLISH"}
+                      <span className="text-[10px] text-zinc-500 uppercase">Technical Trend</span>
+                      <div className="text-sm sm:text-base font-bold text-white mt-1">
+                        {technicalSummary.trend || "BALANCED"}
                       </div>
                     </div>
                   </div>
@@ -698,22 +628,22 @@ ${thesisNarrative ? `\nThesis:\n${thesisNarrative}` : ""}`;
 
             {/* TAB 3: Adversarial Bull vs Bear Debate */}
             {(activeDossierTab === "full" || activeDossierTab === "debate") && (opportunities.length > 0 || risks.length > 0) && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {opportunities.length > 0 && (
-                  <div className="rounded-xl border border-emerald-500/25 bg-gradient-to-b from-[#091724] to-[#06111a] p-4 space-y-2.5 shadow-md">
-                    <div className="flex items-center justify-between border-b border-emerald-500/15 pb-2">
-                      <div className="flex items-center gap-2 text-xs font-bold text-emerald-400 font-mono">
-                        <span>▲</span> Bull Case & Growth Catalysts
+                  <div className="rounded-xl border border-white/[0.1] bg-white/[0.02] p-5 space-y-3 shadow-md hover:border-white/20 transition-colors">
+                    <div className="flex items-center justify-between border-b border-white/[0.08] pb-2.5">
+                      <div className="flex items-center gap-2 text-xs font-bold text-white font-mono tracking-wide">
+                        <span>▲</span> Bull Case & Catalysts
                       </div>
-                      <span className="font-mono text-[9.5px] rounded bg-emerald-500/10 px-1.5 py-0.5 text-emerald-300 font-bold">
+                      <span className="font-mono text-[9.5px] rounded bg-white/[0.08] border border-white/15 px-2 py-0.5 text-zinc-200 font-semibold">
                         UPSIDE
                       </span>
                     </div>
-                    <ul className="space-y-2 text-xs text-[#b3c7de]">
+                    <ul className="space-y-2.5 text-xs text-zinc-300">
                       {opportunities.map((opp, i) => (
-                        <li key={i} className="flex items-start gap-2">
-                          <span className="text-emerald-400 text-xs mt-0.5">›</span>
-                          <span className="leading-snug text-white/90">{opp}</span>
+                        <li key={i} className="flex items-start gap-2.5">
+                          <span className="text-zinc-500 text-xs mt-0.5">›</span>
+                          <span className="leading-relaxed text-zinc-200">{opp}</span>
                         </li>
                       ))}
                     </ul>
@@ -721,22 +651,22 @@ ${thesisNarrative ? `\nThesis:\n${thesisNarrative}` : ""}`;
                 )}
 
                 {risks.length > 0 && (
-                  <div className="rounded-xl border border-rose-500/25 bg-gradient-to-b from-[#190d14] to-[#10080e] p-4 space-y-2.5 shadow-md">
-                    <div className="flex items-center justify-between border-b border-rose-500/15 pb-2">
-                      <div className="flex items-center gap-2 text-xs font-bold text-rose-400 font-mono">
-                        <span>▼</span> Bear Case & Downside Vulnerabilities
+                  <div className="rounded-xl border border-white/[0.1] bg-white/[0.02] p-5 space-y-3 shadow-md hover:border-white/20 transition-colors">
+                    <div className="flex items-center justify-between border-b border-white/[0.08] pb-2.5">
+                      <div className="flex items-center gap-2 text-xs font-bold text-zinc-300 font-mono tracking-wide">
+                        <span>▼</span> Bear Case & Headwinds
                       </div>
                       {turn.risks && (
-                        <span className="font-mono text-[9.5px] rounded bg-rose-500/10 px-1.5 py-0.5 text-rose-300 font-bold">
-                          RISK {turn.risks.risk_score}/10
+                        <span className="font-mono text-[9.5px] rounded bg-white/[0.08] border border-white/15 px-2 py-0.5 text-zinc-300 font-semibold">
+                          SCORE {turn.risks.risk_score}/10
                         </span>
                       )}
                     </div>
-                    <ul className="space-y-2 text-xs text-[#b3c7de]">
+                    <ul className="space-y-2.5 text-xs text-zinc-400">
                       {risks.map((risk, i) => (
-                        <li key={i} className="flex items-start gap-2">
-                          <span className="text-rose-400 text-xs mt-0.5">›</span>
-                          <span className="leading-snug text-white/90">{risk}</span>
+                        <li key={i} className="flex items-start gap-2.5">
+                          <span className="text-zinc-500 text-xs mt-0.5">›</span>
+                          <span className="leading-relaxed text-zinc-300">{risk}</span>
                         </li>
                       ))}
                     </ul>
@@ -747,39 +677,39 @@ ${thesisNarrative ? `\nThesis:\n${thesisNarrative}` : ""}`;
 
             {/* TAB 4: Quantitative Risk & Solvency Metrics Strip */}
             {(activeDossierTab === "full" || activeDossierTab === "risk") && (
-              <div className="rounded-xl border border-[#162235] bg-[#070e19] p-4 space-y-3 font-mono text-xs">
-                <div className="flex items-center justify-between border-b border-[#131f2f] pb-2">
-                  <div className="flex items-center gap-2 text-white font-bold">
+              <div className="rounded-xl border border-white/[0.08] bg-white/[0.02] p-5 space-y-3 font-mono text-xs">
+                <div className="flex items-center justify-between border-b border-white/[0.06] pb-2.5">
+                  <div className="flex items-center gap-2 text-white font-bold tracking-tight">
                     <span>🛡️</span>
                     <span>Quantitative Risk & Drawdown Profile</span>
                   </div>
-                  <span className="text-amber-400 font-semibold text-[11px]">
+                  <span className="text-zinc-300 font-medium text-[11px]">
                     {riskSummaryData?.rating || turn.risks?.risk_level || "MODERATE"} RISK
                   </span>
                 </div>
 
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-                  <div className="rounded-lg border border-[#131e2e] bg-[#0a121f] p-2.5">
-                    <div className="text-[10px] text-[#556980]">Annualized Volatility</div>
-                    <div className="text-sm font-bold text-white mt-0.5">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-1">
+                  <div className="rounded-lg border border-white/[0.06] bg-white/[0.02] p-3">
+                    <div className="text-[10px] text-zinc-500 uppercase">Annualized Volatility</div>
+                    <div className="text-sm font-bold text-white mt-1">
                       {riskSummaryData?.volatility ? `${riskSummaryData.volatility}%` : "24.2%"}
                     </div>
                   </div>
-                  <div className="rounded-lg border border-[#131e2e] bg-[#0a121f] p-2.5">
-                    <div className="text-[10px] text-[#556980]">1Y Max Drawdown</div>
-                    <div className="text-sm font-bold text-rose-400 mt-0.5">
+                  <div className="rounded-lg border border-white/[0.06] bg-white/[0.02] p-3">
+                    <div className="text-[10px] text-zinc-500 uppercase">1Y Max Drawdown</div>
+                    <div className="text-sm font-bold text-zinc-300 mt-1">
                       {riskSummaryData?.max_drawdown ? `${riskSummaryData.max_drawdown}%` : "-13.8%"}
                     </div>
                   </div>
-                  <div className="rounded-lg border border-[#131e2e] bg-[#0a121f] p-2.5">
-                    <div className="text-[10px] text-[#556980]">Sharpe Ratio (Rf=4.5%)</div>
-                    <div className="text-sm font-bold text-emerald-400 mt-0.5">
+                  <div className="rounded-lg border border-white/[0.06] bg-white/[0.02] p-3">
+                    <div className="text-[10px] text-zinc-500 uppercase">Sharpe Ratio</div>
+                    <div className="text-sm font-bold text-white mt-1">
                       {riskSummaryData?.sharpe ? riskSummaryData.sharpe : "1.42"}
                     </div>
                   </div>
-                  <div className="rounded-lg border border-[#131e2e] bg-[#0a121f] p-2.5">
-                    <div className="text-[10px] text-[#556980]">Market Beta</div>
-                    <div className="text-sm font-bold text-white mt-0.5">
+                  <div className="rounded-lg border border-white/[0.06] bg-white/[0.02] p-3">
+                    <div className="text-[10px] text-zinc-500 uppercase">Market Beta</div>
+                    <div className="text-sm font-bold text-white mt-1">
                       {riskSummaryData?.beta ? riskSummaryData.beta : "1.07"}
                     </div>
                   </div>
@@ -789,27 +719,27 @@ ${thesisNarrative ? `\nThesis:\n${thesisNarrative}` : ""}`;
 
             {/* TAB 5: Citations & Verified Sources */}
             {(activeDossierTab === "full" || activeDossierTab === "sources") && (
-              <div className="rounded-xl border border-[#162337] bg-[#060c16] p-4 space-y-3">
-                <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#141f2f] pb-2">
+              <div className="rounded-xl border border-white/[0.08] bg-white/[0.02] p-5 space-y-3.5">
+                <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/[0.06] pb-2.5">
                   <div className="flex items-center gap-2 font-mono text-xs font-bold uppercase tracking-wider text-white">
                     <span>📑</span>
-                    <span>Audit Trail: Verified Telemetry & Filings</span>
+                    <span>Verified Audit Trail & Filings</span>
                   </div>
-                  <span className="font-mono text-[10px] text-emerald-400">
-                    SEC EDGAR + Yahoo Finance Real-Time
+                  <span className="font-mono text-[10px] text-zinc-400">
+                    SEC EDGAR + Real-Time Telemetry
                   </span>
                 </div>
 
                 {newsCitations.length > 0 && (
-                  <div className="space-y-1.5 pt-1">
-                    <div className="text-[10px] font-mono uppercase tracking-wider text-[#556980]">
+                  <div className="space-y-2 pt-1">
+                    <div className="text-[10px] font-mono uppercase tracking-wider text-zinc-500">
                       Primary News Citations ({newsCitations.length})
                     </div>
-                    <div className="space-y-1.5">
+                    <div className="space-y-2">
                       {newsCitations.slice(0, 3).map((art, idx) => (
                         <div
                           key={idx}
-                          className="flex items-start justify-between gap-2 rounded-lg border border-[#142031] bg-[#09121f] p-2.5 text-xs hover:border-[#1e304b] transition-colors"
+                          className="flex items-start justify-between gap-2 rounded-lg border border-white/[0.06] bg-white/[0.02] p-3 text-xs hover:border-white/20 transition-all"
                         >
                           <div className="min-w-0 flex-1">
                             {art.url ? (
@@ -817,15 +747,15 @@ ${thesisNarrative ? `\nThesis:\n${thesisNarrative}` : ""}`;
                                 href={art.url}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="font-medium text-white hover:text-emerald-400 transition-colors line-clamp-1 text-[11.5px]"
+                                className="font-medium text-white hover:text-zinc-300 transition-colors line-clamp-1 text-[11.5px]"
                               >
                                 {art.title}
                               </a>
                             ) : (
                               <span className="font-medium text-white line-clamp-1 text-[11.5px]">{art.title}</span>
                             )}
-                            <div className="flex items-center gap-2 text-[9px] font-mono text-[#556980] mt-1">
-                              <span className="text-emerald-400 font-semibold">{art.source}</span>
+                            <div className="flex items-center gap-2 text-[9px] font-mono text-zinc-500 mt-1">
+                              <span className="text-zinc-400 font-semibold">{art.source}</span>
                               {art.published_at && (
                                 <>
                                   <span>•</span>
@@ -839,7 +769,7 @@ ${thesisNarrative ? `\nThesis:\n${thesisNarrative}` : ""}`;
                               href={art.url}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="shrink-0 text-xs font-mono text-emerald-400 hover:text-emerald-300"
+                              className="shrink-0 text-xs font-mono text-zinc-400 hover:text-white"
                             >
                               ↗
                             </a>
@@ -851,20 +781,20 @@ ${thesisNarrative ? `\nThesis:\n${thesisNarrative}` : ""}`;
                 )}
 
                 {toolOutputs.length > 0 && (
-                  <div className="pt-2 border-t border-[#141f2f]">
+                  <div className="pt-2 border-t border-white/[0.06]">
                     <button
                       onClick={() => setShowAllSources(!showAllSources)}
-                      className="text-[11px] font-mono text-emerald-400 hover:text-emerald-300 transition-colors cursor-pointer"
+                      className="text-[11px] font-mono text-zinc-400 hover:text-white transition-colors cursor-pointer"
                     >
-                      {showAllSources ? "Hide Raw Tool JSON ↑" : "Inspect Raw Tool Payloads & Telemetry →"}
+                      {showAllSources ? "Hide Raw Payloads ↑" : "Inspect Raw Tool Payloads & Telemetry →"}
                     </button>
 
                     {showAllSources && (
-                      <div className="mt-2.5 rounded-xl border border-[#162234] bg-[#03070f] p-3 text-[10px] font-mono space-y-2 max-h-48 overflow-y-auto">
+                      <div className="mt-3 rounded-xl border border-white/[0.08] bg-zinc-950 p-4 text-[10px] font-mono space-y-2 max-h-48 overflow-y-auto">
                         {toolOutputs.map((step, idx) => (
-                          <div key={idx} className="border-t border-[#121b2b] first:border-0 pt-1.5">
-                            <span className="text-amber-400 font-bold">{step.tool}</span>
-                            <pre className="mt-1 text-[#657a95] whitespace-pre-wrap overflow-x-auto text-[9.5px]">
+                          <div key={idx} className="border-t border-white/[0.06] first:border-0 pt-2">
+                            <span className="text-white font-bold">{step.tool}</span>
+                            <pre className="mt-1 text-zinc-400 whitespace-pre-wrap overflow-x-auto text-[9.5px]">
                               {typeof step.output === "object" ? JSON.stringify(step.output, null, 2) : String(step.output)}
                             </pre>
                           </div>
@@ -876,8 +806,8 @@ ${thesisNarrative ? `\nThesis:\n${thesisNarrative}` : ""}`;
               </div>
             )}
 
-            <div className="text-[10px] text-[#4d5f75] font-mono border-t border-[#131e2e] pt-2">
-              * Note: Live market intelligence synthesized by autonomous research agents. Does not constitute registered financial advisory.
+            <div className="text-[10px] text-zinc-500 font-mono border-t border-white/[0.06] pt-3">
+              * Note: Intelligence synthesized by autonomous multi-agent systems for informational research purposes.
             </div>
           </div>
         )}
