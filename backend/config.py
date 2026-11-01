@@ -3,7 +3,7 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 from langchain_groq import ChatGroq
-from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_mistralai import ChatMistralAI
 from langchain_openrouter import ChatOpenRouter
 from settings import (
     AUTH_REDIRECT_URL,
@@ -14,7 +14,7 @@ from settings import (
     SUPABASE_URL,
 )
 
-GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
+MISTRAL_API_KEY = os.getenv("MISTRAL_API_KEY")
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 NEWS_API_KEY = os.getenv("NEWS_API_KEY")
 OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
@@ -28,10 +28,10 @@ groq_llm = ChatGroq(
     api_key=GROQ_API_KEY,
 )
 
-google_llm = ChatGoogleGenerativeAI(
-    model="gemini-3.8-flash",
+mistral_llm = ChatMistralAI(
+    model="ministral-3-14b-latest",
     temperature=0.2,
-    api_key=GOOGLE_API_KEY,
+    api_key=MISTRAL_API_KEY,
     timeout=20,
 )
 
@@ -43,7 +43,7 @@ openrouter_llm = ChatOpenRouter(
 )
 
 # Robust fallback chain: Groq -> Google -> OpenRouter
-llm = google_llm.with_fallbacks([groq_llm, openrouter_llm])
+llm = mistral_llm.with_fallbacks([groq_llm, openrouter_llm])
 primary_llm = llm
 
 guardrail_llm_groq = ChatGroq(
@@ -53,4 +53,4 @@ guardrail_llm_groq = ChatGroq(
     temperature=0,
 )
 
-guardrail_llm = guardrail_llm_groq.with_fallbacks([google_llm, openrouter_llm])
+guardrail_llm = guardrail_llm_groq.with_fallbacks([mistral_llm, openrouter_llm])
